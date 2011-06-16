@@ -39,6 +39,15 @@ void TAnalysis::Run()
    Assemble(globstiff,globrhs);
    fSolution = globrhs;
    globstiff.Solve_LU(&fSolution);
+	
+	// Caso o valor seja muito pequeno, ele eh zero
+	 for (int i = 0; i < fSolution.Rows() ; i++) 
+	 {
+		 if (fabs(fSolution[i]) < 1.e-10) 
+		 {
+			 fSolution(i) = 0;
+		 }
+	 }
    
    fSolution.Print("The solution ");
    
@@ -59,10 +68,10 @@ void TAnalysis::Assemble(TPZMatrix &stiff, TPZFMatrix &rhs)
      for(in=0; in<nnodes; in++)
      {
      	rhs(nodes[in],0) += locrhs(in,0);
-	for(jn=0; jn<nnodes; jn++)
-	{
-		stiff(nodes[in],nodes[jn]) += locstiff(in,jn);
-	}
+			 for(jn=0; jn<nnodes; jn++)
+			 {
+				 stiff(nodes[in],nodes[jn]) += locstiff(in,jn);
+			 }
      }
    }
 }

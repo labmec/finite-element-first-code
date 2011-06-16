@@ -24,7 +24,9 @@
 #include "tmaterial.h"
 #include "pzfmatrix.h"
 #include "pzquad.h"
+#include "tintegracao.h"
 
+using namespace std; 
 
 TElemento1d::TElemento1d(int matid, int order, std::vector< int >& nodes): TElemento(matid, order, nodes)
 {
@@ -51,20 +53,32 @@ void TElemento1d::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& rhs)
   std::vector<double> phi(this->fPorder+1),pointstl(1,0.);
   TPZFMatrix dphi(1,fPorder+1), dphix(1,fPorder+1);
   TPZFMatrix jac(1,1),jacinv(1,1);
-  TPZInt1d intrule(fPorder+fPorder);
-  
+  // TPZInt1d intrule(fPorder+fPorder);
+    
+  //*************** Chama a Regra de Integracao Numerica ***************//
+    
+  TIntegracao intrule(fPorder+fPorder); // A ordem do polinomio que pode ser integrado eh (2x num de ptos - 1)
   stiff.Redim(fPorder+1,fPorder+1);
   rhs.Redim(fPorder+1,1);
   TMaterial *mat = malha.getMaterial(fMaterialId);
   
-  int npoints = intrule.NPoints();
-  TPZVec<double> point(1);
-  double weight;
-  int ip;
-  for(ip = 0; ip<npoints; ip++)
+  //int npoints = intrule.NPoints();
+    int npoints = intrule.NPoints(); //Retorna o tamanho de fPontos
+    
+  //  cout << "numpontospz="<<npoints<<"numpointsmeu="<<npoints2<<endl;  !!!!! Teste para checar se o num de pontos da nova regra de integracao estah igual ao anterior !!!!
+  
+    TPZVec<double> point(1);
+    
+//  double weight;
+    double x,weight;
+    int ip;
+    for(ip = 0; ip<npoints; ip++)
   {
-    intrule.Point(ip,point,weight);
-    pointstl[0] = point[0];
+   // intrule.Point(ip,point,weight);
+      
+    intrule.Point(ip, x, weight); // Retorna os pontos e os pesos obtidos pela Regra de Integracao
+      
+    pointstl[0] = x;
     // compute the jacobian
     double detjac;
     Jacobian(pointstl,jac,jacinv,detjac,malha);
@@ -77,14 +91,15 @@ void TElemento1d::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& rhs)
       dphix(0,i) = jacinv(0,0)*dphi(0,i);
     }
     dphix.Print("Derivada real da funcao de forma");
-    // adjust the weight of the integration point with the determinant of the jacobian
-    weight *= fabs(detjac);
-    std::cout << "Peso " << weight << std::endl;
+      
+    weight *= fabs(detjac);  // !!! Ajusta o peso do ponto de integracao ao determinante do jacobiano !!!
+
+    cout << "Peso " << weight << endl;
     // accumulate the contribution to the stiffness matrix
     mat->Contribute(weight,phi,dphix,stiff,rhs);
   }
 }
-
+//**********************************************************************//
 
     /**
      * Calculo do jacobiano
@@ -129,7 +144,7 @@ void TElemento1d::Shape(std::vector<double> &point, std::vector<double> &phi, TP
      */
 void TElemento1d::Error(TPZFMatrix &solution, TMalha &malha, void (exact)(std::vector<double> &,double &, std::vector<double> &), double &energy, double &l2)
 {
-  std::vector<double> phi(this->fPorder+1),pointstl(1,0.);
+ /* std::vector<double> phi(this->fPorder+1),pointstl(1,0.);
   TPZFMatrix dphi(1,fPorder+1), dphix(1,fPorder+1);
   TPZFMatrix jac(1,1),jacinv(1,1);
   TPZInt1d intrule(fPorder+fPorder);
@@ -169,7 +184,7 @@ void TElemento1d::Error(TPZFMatrix &solution, TMalha &malha, void (exact)(std::v
 	dphix.Print("Derivada real da funcao de forma");
 	// adjust the weight of the integration point with the determinant of the jacobian
 	weight *= fabs(detjac)/numinterval;
-	std::cout << "Peso " << weight << std::endl;
+	cout << "Peso " << weight << endl;
 	double sol = 0.;
 	std::vector<double> derivsol(1,0.);
 	for(i=0; i<phi.size(); i++)
@@ -182,6 +197,6 @@ void TElemento1d::Error(TPZFMatrix &solution, TMalha &malha, void (exact)(std::v
 	}
    }
    energy = sqrt(energy);
-   l2 = sqrt(l2);
+   l2 = sqrt(l2);*/
 
 }

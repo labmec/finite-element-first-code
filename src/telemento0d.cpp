@@ -53,7 +53,6 @@ void TElemento0d::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& rhs)
   double weight = 1.;
   TMaterial *mat = malha.getMaterial(this->fMaterialId);
   mat->Contribute(weight,phi,dphi,stiff,rhs);
-  
 }
 
 void TElemento0d::Jacobian(std::vector< double >& point, TPZFMatrix& jacobian, TPZFMatrix& jacinv, double &detjac, TMalha& malha)

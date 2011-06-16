@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     result = Integrate(ord,0.,3.,func);
     std::cout << "O resultado da integracao " << result << std::endl;
   }*/
-
+			
   if(argc < 2) 
   {
       std::cout << "Numero de argumentos menor que dois";
@@ -85,6 +85,9 @@ int main(int argc, char *argv[])
 
 double Integrate(int ord, double xmin, double xmax,double (*g)(double x))
 {
+    double result;
+  /* -- 
+    
   // escala devido ao tamanho do intervalo
   double mult = (xmax-xmin)/2.;
   // objecto tipo regra de integracao
@@ -106,7 +109,7 @@ double Integrate(int ord, double xmin, double xmax,double (*g)(double x))
     // calcula o valor da funcao, integra
     result += g(x)*w*mult;
     
-  }
+  }*/
   return result;
   
 }
@@ -118,11 +121,11 @@ double func(double x)
 
 void ReadMesh(TMalha &malha, std::string &filename)
 {
-   int nmat,nbc,npoint;
+   int nmat,nbc,npoint; 
    std::ifstream input(filename.c_str());
    input >> nmat >> nbc >> npoint;
    int im;
-   for(im=0; im<nmat; im++)
+   for(im=0; im<nmat; im++) // lendo materiais
    {
    	int id;
 	double k,c,b,f;
@@ -130,7 +133,7 @@ void ReadMesh(TMalha &malha, std::string &filename)
 	TMaterial1d *mat1d = new TMaterial1d(id,k,c,b,f);
 	malha.insertMaterial(mat1d);
    }
-   for(im=0; im<nbc; im++)
+   for(im=0; im<nbc; im++) // lendo cond de contorno
    {
    	int id, type;
 	double contrstiff, contrrhs;
@@ -138,7 +141,7 @@ void ReadMesh(TMalha &malha, std::string &filename)
 	TMaterialBC *matbc = new TMaterialBC(id,type,contrstiff,contrrhs);
 	malha.insertMaterial(matbc);
    }
-   for(im=0; im < npoint; im++)
+   for(im=0; im < npoint; im++) // lendo os pontos com cond de contorno no meio da malha
    {
    	int mat;
 	int node, order = 0;
@@ -149,7 +152,7 @@ void ReadMesh(TMalha &malha, std::string &filename)
    }
    double x0;
    int matleft, matright;
-   input >> x0 >> matleft >> matright;
+   input >> x0 >> matleft >> matright; // lendo primeiro noh, matleft matright
    std::vector<double> co(1,x0);
    TNo no(co);
    malha.insertNode(no);
@@ -158,7 +161,7 @@ void ReadMesh(TMalha &malha, std::string &filename)
    {
    	double x1;
 	int nelem, mat, morder;
-	input >> x1 >> nelem >> mat >> morder;
+	input >> x1 >> nelem >> mat >> morder; // lendo proximo nohs
 	if(!input) break;
 	int numnewnodes = nelem*morder;
 	int firstnode = malha.getNodeVec().size();
@@ -187,9 +190,9 @@ void ReadMesh(TMalha &malha, std::string &filename)
    }
    int node, order = 0;
    std::vector<int> nodes(1,0);
-   TElemento0d *elem = new TElemento0d(matleft,order,nodes);
+   TElemento0d *elem = new TElemento0d(matleft,order,nodes); // condicao da esquerda
    malha.insertElement(elem);
    nodes[0] = count;
-   elem = new TElemento0d(matright,order,nodes);
+   elem = new TElemento0d(matright,order,nodes); // condicao da direita
    malha.insertElement(elem);
 }

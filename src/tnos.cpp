@@ -108,16 +108,16 @@ int TNo::main()
   std::cout << "\tcriando vetor de 2 double (0.,0.)" << std::endl;
   std::vector <double> coord (2,0.);
   
-  std::cout << "\tcriando o nó 0 com identificador 100 coordenadas do vetor acima..." <<std::endl;
+  std::cout << "\tcriando o noh 0 com identificador 100 coordenadas do vetor acima..." <<std::endl;
   TNo no0 (coord);
   
-  std::cout << "\to resultado é: " << std::endl;
+  std::cout << "\to resultado eh: " << std::endl;
   no0.Print();
   
   std::cout << std::endl;
   
-  std::cout << "Criando um vetor de nos. No loop são definidos os dados dos nós" << std::endl;
-  std::cout << "Entre com número de linhas e de colunas :";
+  std::cout << "Criando um vetor de nos. No loop sao definidos os dados dos nohs" << std::endl;
+  std::cout << "Entre com numero de linhas e de colunas :";
   std::cout.flush();
   int linha,coluna;
   std::cin >> linha >> coluna;
@@ -134,7 +134,7 @@ int TNo::main()
     }
   }
   
-  std::cout << "os nós criados foram:" << std::endl;
+  std::cout << "os nos criados foram:" << std::endl;
   for (i=0;i<nos.size();i++)
   {
     nos[i].Print();
