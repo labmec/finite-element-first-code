@@ -21,7 +21,7 @@
 #define TELEMENTO0D_H
 
 #include <telemento.h>
-
+// Teste Tiago
 /**
 Esta classe implementa um elemento ponto
 
