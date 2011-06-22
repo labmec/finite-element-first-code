@@ -8,11 +8,13 @@
 
 #include "TIntegracao2d_tri.h"
 
-#include "nr3.h"
+//#include "nr3.h"
 
 
 //**************Integracao pela Quadratura de Gauss-Legendre n-point***************
 
+// IMPLEMENTAR
+/*
 static void gauleg(const Doub x1, const Doub x2, VecDoub_O &x, VecDoub_O &w)
 {
 	const Doub EPS=1.0e-14;
@@ -41,11 +43,10 @@ static void gauleg(const Doub x1, const Doub x2, VecDoub_O &x, VecDoub_O &w)
 		w[n-1-i]=w[i];
 	}
 }
+*/
 
-
-TIntegracao2d_tri::TIntegracao2d_tri(int order, double xmin, double xmax)
+TIntegracao2d_tri::TIntegracao2d_tri(int order)
 {
-    VecDoub x1;
     fOrder = order;
     int np;
     if (order%2==1)
@@ -58,7 +59,8 @@ TIntegracao2d_tri::TIntegracao2d_tri(int order, double xmin, double xmax)
     }
     fPontos.resize(np);
     fPesos.resize(np);
-    gauleg(xmin,xmax,fPontos,fPesos);
+		// IMPLEMENTAR
+    //gauleg(xmin,xmax,fPontos,fPesos);
 }
 
 int TIntegracao2d_tri::NPoints()
@@ -67,15 +69,17 @@ int TIntegracao2d_tri::NPoints()
     
 }
 
-void TIntegracao2d_tri::Point(int ip, double &x, double &weight)
+// IMPLEMENTAR
+void TIntegracao2d_tri::Point(int ip, std::vector<double>  &x, double &weight)
 {
     if (ip < 0 || ip >= fPontos.size()) 
     {
         femsc_exception toto;
         throw toto;
     }
-    x = fPontos[ip];
-    weight = fPesos[ip];
+		// IMPLEMENTAR
+    //x = fPontos[ip];
+    //weight = fPesos[ip];
 }
 /*
 **************Integracao pela Quadratura de Gauss-Hermite****************************************

@@ -12,20 +12,23 @@
 
 //**************Integracao pela Quadratura de Gauss-Legendre n-point***************
 
-static void gauleg(const Doub x1, const Doub x2, VecDoub_O &x, VecDoub_O &w)
+
+// IMPLEMENTAR
+/*
+static void gauleg(const double x1, const double x2, std::vector <double> &x, std::vector <double> &w)
 {
-	const Doub EPS=1.0e-14;
-	Doub z1,z,xm,xl,pp,p3,p2,p1;
-	Int n=x.size();
-	Int m=(n+1)/2;
+	const double EPS=1.0e-14;
+	double z1,z,xm,xl,pp,p3,p2,p1;
+	int n=x.size();
+	int m=(n+1)/2;
 	xm=0.5*(x2+x1);
 	xl=0.5*(x2-x1);
-	for (Int i=0;i<m;i++) {
+	for (int i=0;i<m;i++) {
 		z=cos(3.141592654*(i+0.75)/(n+0.5));
 		do {
 			p1=1.0;
 			p2=0.0;
-			for (Int j=0;j<n;j++) {
+			for (int j=0;j<n;j++) {
 				p3=p2;
 				p2=p1;
 				p1=((2.0*j+1.0)*z*p2-j*p3)/(j+1);
@@ -40,12 +43,11 @@ static void gauleg(const Doub x1, const Doub x2, VecDoub_O &x, VecDoub_O &w)
 		w[n-1-i]=w[i];
 	}
 }
+*/
 
 
-
-TIntegracao2d_quad::TIntegracao2d_quad(int order, double xmin, double xmax)
+TIntegracao2d_quad::TIntegracao2d_quad(int order)
 {
-    VecDoub x1;
     fOrder = order;
     int np;
     if (order%2==1)
@@ -58,24 +60,27 @@ TIntegracao2d_quad::TIntegracao2d_quad(int order, double xmin, double xmax)
     }
     fPontos.resize(np);
     fPesos.resize(np);
-    gauleg(xmin,xmax,fPontos,fPesos);
+		// IMPLEMENTAR
+    //gauleg(xmin,xmax,fPontos,fPesos);
 }
 
 int TIntegracao2d_quad::NPoints()
 {
     return fPontos.size();
-    
 }
 
-void TIntegracao2d_quad::Point(int ip, double &x, double &weight)
+// IMPLEMENTAR
+void TIntegracao2d_quad::Point(int ip, std::vector<double> &x, double &weight)
 {
     if (ip < 0 || ip >= fPontos.size()) 
     {
         femsc_exception toto;
         throw toto;
     }
-    x = fPontos[ip];
-    weight = fPesos[ip];
+	
+		// IMPLEMENTAR
+    //x = fPontos[ip];
+    //weight = fPesos[ip];
 }
 /*
 **************Integracao pela Quadratura de Gauss-Hermite****************************************

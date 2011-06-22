@@ -45,9 +45,10 @@ telemento2d_tri::~telemento2d_tri()
 
 MElementType telemento2d_tri::getElType()
 {
-    return ELinear;
+    return ETriangle;
 }
 
+// IMPLEMENTAR - observar o quad que esta quase pronto
 void telemento2d_tri::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& rhs)
 {
   std::vector<double> phi(this->fPorder+1),pointstl(1,0.);
@@ -109,6 +110,8 @@ void telemento2d_tri::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& rh
      * @malha : objeto malha necessaria para relacionar os indices dos nos com os nos reais
      * 
      */
+
+// IMPLEMENTAR - jacobiano (2,2)
 void telemento2d_tri::Jacobian(std::vector<double> &point, TPZFMatrix &jacobian, TPZFMatrix &jacinv, double &detjac, TMalha &malha)
 {
   if(!fNodes.size()) return;
@@ -131,6 +134,8 @@ void telemento2d_tri::Jacobian(std::vector<double> &point, TPZFMatrix &jacobian,
      * @phi valores das funcoes de forma
      * @dphi valores das derivadas das funcoes de forma
      */
+
+// IMPLEMENTAR
 void telemento2d_tri::Shape(std::vector<double> &point, std::vector<double> &phi, TPZFMatrix &dphi)
 {
   TElemento::Shape1d(fPorder, point, phi, dphi);

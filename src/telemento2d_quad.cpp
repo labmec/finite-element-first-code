@@ -48,6 +48,8 @@ MElementType telemento2d_quad::getElType()
     return EQuadrilateral;
 }
 
+
+// IMPLEMENTAR
 void telemento2d_quad::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& rhs)
 {
 	int Nshape=(this->fPorder+1)*(this->fPorder+1);
@@ -118,6 +120,8 @@ void telemento2d_quad::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& r
      * @malha : objeto malha necessaria para relacionar os indices dos nos com os nos reais
      * 
      */
+
+// IMPLEMENTAR - jacobiano (2,2)
 void telemento2d_quad::Jacobian(std::vector<double> &point, TPZFMatrix &jacobian, TPZFMatrix &jacinv, double &detjac, TMalha &malha)
 {
   if(!fNodes.size()) return;
@@ -140,6 +144,8 @@ void telemento2d_quad::Jacobian(std::vector<double> &point, TPZFMatrix &jacobian
      * @phi valores das funcoes de forma
      * @dphi valores das derivadas das funcoes de forma
      */
+
+// IMPLEMENTAR
 void telemento2d_quad::Shape(std::vector<double> &point, std::vector<double> &phi, TPZFMatrix &dphi)
 {
   TElemento::Shape1d(fPorder, point, phi, dphi);
