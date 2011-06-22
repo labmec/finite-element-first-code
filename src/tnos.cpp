@@ -77,7 +77,7 @@ double &TNo::Co(int i)
   if (i< 0 || i>1) 
   {
     std::cout << "ERRO - double TNo::getCoordenada(int i)\n"
-              << "\tIndice de coordenada " << i << " fora das dimensões do nó!"
+              << "\tIndice de coordenada " << i << " fora das dimensÃµes do nÃ³!"
               << "\tRetornando valor nulo"
               << std::endl;
     gZero = 0.;
@@ -90,7 +90,7 @@ double &TNo::Co(int i)
 
 void TNo::Print(std::ostream &out)
 {
-  out << "Nó: coordenadas ( ";
+  out << "NÃ³: coordenadas ( ";
   int i;
   out << fCoordenadas[0];
   for (i=1;i<2;i++)

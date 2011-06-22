@@ -24,7 +24,7 @@
 #include "telemento0d.h"
 #include "tmaterialbc.h"
 #include "tmaterial1d.h"
-#include "pzfmatrix.h"
+#include <pzfmatrix.h>
 
 TMalha::TMalha() : fNodes(), fElements(), fMaterials()
 {
@@ -134,20 +134,20 @@ TElemento * TMalha::getElement (int i)
 void TMalha::Print(std::ostream &out)
 {
   int i;
-  out << "Impressão da malha" << std::endl;
-  out << "Vetor de Nós - número de nós = " << fNodes.size() << std::endl;
+  out << "ImpressÃ£o da malha" << std::endl;
+  out << "Vetor de NÃ³s - nÃºmero de nÃ³s = " << fNodes.size() << std::endl;
   for (i=0;i<fNodes.size();i++) 
   {
     out << "Ind " << i << ' ';
     fNodes[i].Print(out);
   }
-  out << "Vetor de Elementos - número de elementos = " << fElements.size() << std::endl;
+  out << "Vetor de Elementos - nÃºmero de elementos = " << fElements.size() << std::endl;
   for (i=0; i<this->fElements.size(); i++) 
   {
     out << "Ind " << i << ' ';
     fElements[i]->Print(out);
   }
-  out << "Vetor de Materiais - número de materiais = " << fMaterials.size() << std::endl;
+  out << "Vetor de Materiais - nÃºmero de materiais = " << fMaterials.size() << std::endl;
   std::map<int, TMaterial *>::iterator it;
   for (it=fMaterials.begin(); it != this->fMaterials.end(); it++) 
   {
