@@ -9,22 +9,26 @@
 #include "TIntegracao2d_quad.h"
 
 #include "nr3.h"
+//#include <math.h>
+#include <iostream>
+//#include "gauss_wgts.h"
 
 //**************Integracao pela Quadratura de Gauss-Legendre n-point***************
 
 
 // IMPLEMENTAR
-/*
+
+
 static void gauleg(const double x1, const double x2, std::vector <double> &x, std::vector <double> &w)
 {
-	const double EPS=1.0e-14;
+	const double EPS=1.0e-16;
 	double z1,z,xm,xl,pp,p3,p2,p1;
 	int n=x.size();
 	int m=(n+1)/2;
 	xm=0.5*(x2+x1);
 	xl=0.5*(x2-x1);
 	for (int i=0;i<m;i++) {
-		z=cos(3.141592654*(i+0.75)/(n+0.5));
+		z=cos(3.14159265358979*(i+0.75)/(n+0.5)); // cos do math.h eh impreciso, USEI o do Numerical Recipes
 		do {
 			p1=1.0;
 			p2=0.0;
@@ -43,25 +47,41 @@ static void gauleg(const double x1, const double x2, std::vector <double> &x, st
 		w[n-1-i]=w[i];
 	}
 }
-*/
+
 
 
 TIntegracao2d_quad::TIntegracao2d_quad(int order)
 {
     fOrder = order;
-    int np;
+		int i, j, np1d, np, xmin = -1., xmax = 1.;
+		std::vector <double> tempvec, temppesos;
+	
     if (order%2==1)
     {
-        np = (order+1)/2;   
+        np1d = (order+1)/2;
+				np = np1d*np1d;
     }
     else 
     {
-        np = (order/2+1);
+        np1d = (order/2+1);
+				np = np1d*np1d;
     }
+		tempvec.resize(np1d);
+		temppesos.resize(np1d);
     fPontos.resize(np);
     fPesos.resize(np);
-		// IMPLEMENTAR
-    //gauleg(xmin,xmax,fPontos,fPesos);
+
+    gauleg(xmin,xmax,tempvec,temppesos);
+		for (i = 0 ; i < np ; i = i + np1d)
+		{
+			for (j = 0 ; j < np1d ; j++)
+			{
+				fPontos[i+j].first = tempvec[j];
+				fPontos[i+j].second = tempvec[i/np1d];
+				fPesos[i+j] = temppesos[j]*temppesos[i/np1d];
+			}
+			
+		}
 }
 
 int TIntegracao2d_quad::NPoints()
@@ -69,18 +89,16 @@ int TIntegracao2d_quad::NPoints()
     return fPontos.size();
 }
 
-// IMPLEMENTAR
-void TIntegracao2d_quad::Point(int ip, std::vector<double> &x, double &weight)
+
+void TIntegracao2d_quad::Point(int ip, std::pair<double,double> &x, double &weight)
 {
     if (ip < 0 || ip >= fPontos.size()) 
     {
         femsc_exception toto;
         throw toto;
     }
-	
-		// IMPLEMENTAR
-    //x = fPontos[ip];
-    //weight = fPesos[ip];
+		x = fPontos[ip];
+    weight = fPesos[ip];
 }
 /*
 **************Integracao pela Quadratura de Gauss-Hermite****************************************

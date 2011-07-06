@@ -6,10 +6,9 @@
 //  Copyright 2011 Unicamp. All rights reserved.
 //
 
-#include <math.h>
 #include "tintegracao.h"
 
-//#include "nr3.h"
+#include "nr3.h"
 //#include "gauss_wgts.h"
 //#include "gauss_wgts2.h"
 
@@ -22,7 +21,7 @@ static void gauleg(const double x1, const double x2, std::vector <double> &x, st
 	xm=0.5*(x2+x1);
 	xl=0.5*(x2-x1);
 	for (int i=0;i<m;i++) {
-		z=cos(3.141592654*(i+0.75)/(n+0.5));
+		z=cos(3.141592654*(i+0.75)/(n+0.5)); // cos() do math.h eh impreciso, USEI o do Numerical Recipes
 		do {
 			p1=1.0;
 			p2=0.0;

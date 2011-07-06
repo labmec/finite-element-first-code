@@ -20,6 +20,7 @@ if(USING_Numerical_Recipes_source)
 	
 	set(Numerical_Recipes_source_INCLUDE "/usr/local/include" CACHE PATH "directory to the source of GMM")
 	add_definitions(-D_AUTODIFF)
+	add_definitions(-D_USESTDVECTOR_)
     include_directories(${Numerical_Recipes_source_INCLUDE},${Numerical_Recipes_source_INCLUDE}/Numerical_Recipes_source)
 endif()
 
@@ -136,3 +137,8 @@ endif()
 
 
 add_subdirectory(src)
+add_subdirectory(Test)
+
+enable_testing()
+
+add_test (TestShapeRuns Test/femtest)

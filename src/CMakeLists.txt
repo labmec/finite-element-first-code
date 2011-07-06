@@ -14,5 +14,12 @@ set(femsc_STAT_SRCS
 	${input}
 	)
 
-add_executable(Fem_sc ${femsc_STAT_SRCS})
+add_subdirectory(test)
+
+set(testefem
+${testefem}
+PARENT_SCOPE
+)
+
+add_subdirectory(main)
 

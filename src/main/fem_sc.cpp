@@ -41,7 +41,7 @@
 
 double Integrate(int ord, double xmin, double xmax,double (*g)(double x));
 
-double func(double x);
+double func(double x, double y);
 
 void ReadMesh(TMalha &malha, std::string &filename);
 
@@ -68,6 +68,7 @@ int main(int argc, char *argv[])
     result = Integrate(ord,0.,3.,func);
     std::cout << "O resultado da integracao " << result << std::endl;
   }*/
+	
 			
   if(argc < 2) 
   {
@@ -114,9 +115,9 @@ double Integrate(int ord, double xmin, double xmax,double (*g)(double x))
   
 }
 
-double func(double x)
+double func(double x, double y)
 {
-  return sin(x);
+  return (1+x)/(2+y);
 }
 
 void ReadMesh(TMalha &malha, std::string &filename)

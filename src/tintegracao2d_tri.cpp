@@ -24,7 +24,7 @@ static void gauleg(const Doub x1, const Doub x2, VecDoub_O &x, VecDoub_O &w)
 	xm=0.5*(x2+x1);
 	xl=0.5*(x2-x1);
 	for (Int i=0;i<m;i++) {
-		z=cos(3.141592654*(i+0.75)/(n+0.5));
+		z=cos(3.141592654*(i+0.75)/(n+0.5));  // cos() do math.h eh impreciso, USEI o do Numerical Recipes
 		do {
 			p1=1.0;
 			p2=0.0;

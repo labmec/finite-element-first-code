@@ -80,7 +80,8 @@ void telemento2d_quad::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& r
   {
    // intrule.Point(ip,point,weight);
       
-    intrule.Point(ip, x, weight); // Retorna os pontos e os pesos obtidos pela Regra de Integracao
+		// AGORA RECEBE UM PAIR NO X
+    //intrule.Point(ip, x, weight); // Retorna os pontos e os pesos obtidos pela Regra de Integracao
       
     pointstl = x;
     // compute the jacobian
