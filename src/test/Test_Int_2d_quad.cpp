@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(test_npoints)
 BOOST_AUTO_TEST_CASE(known_result)
 {
 	
-		TIntegracao2d_quad intrule(6);
+		TIntegracao2d_quad intrule(4);
 		int npoints = intrule.NPoints();
 		double weight, result = 0;
 		std::pair <double,double> x;
