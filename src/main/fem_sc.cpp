@@ -36,6 +36,7 @@
 #include "tmaterialbc.h"
 #include "pzquad.h"
 #include "pzvec.h"
+#include "telemento2d_quad.h"
 
 //using namespace std;
 
@@ -68,6 +69,7 @@ int main(int argc, char *argv[])
     result = Integrate(ord,0.,3.,func);
     std::cout << "O resultado da integracao " << result << std::endl;
   }*/
+
 	
 			
   if(argc < 2) 

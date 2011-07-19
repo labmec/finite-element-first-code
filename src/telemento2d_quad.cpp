@@ -71,37 +71,39 @@ void telemento2d_quad::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& r
     
   //  cout << "numpontospz="<<npoints<<"numpointsmeu="<<npoints2<<endl;  !!!!! Teste para checar se o num de pontos da nova regra de integracao estah igual ao anterior !!!!
   
-	std::vector<double> x(2);
+	std::pair<double,double> x;
     
 //  double weight;
     double weight;
     int ip;
-    for(ip = 0; ip<npoints; ip++)
+	for(ip = 0; ip<npoints; ip++)
   {
-   // intrule.Point(ip,point,weight);
+		//intrule.Point(ip,point,weight);
       
 		// AGORA RECEBE UM PAIR NO X
-    //intrule.Point(ip, x, weight); // Retorna os pontos e os pesos obtidos pela Regra de Integracao
-      
-    pointstl = x;
+    intrule.Point(ip, x, weight); // Retorna os pontos e os pesos obtidos pela Regra de Integracao
+    
+		pointstl[0] = x.first;
+		pointstl[1] = x.second;
+
+		// compute the value of the shape functions
+    Shape(pointstl,phi,dphi);
     // compute the jacobian
     double detjac;
     Jacobian(pointstl,jac,jacinv,detjac,malha);
-    // compute the value of the shape functions
-    Shape(pointstl,phi,dphi);
     // compute the derivative of the shapefunctions with respect to x
     int i,j,idim,jdim;
     for(i=0; i<phi.size(); i++)
-	{
-		for (idim=0; idim<dim; idim++) 
 		{
-			gradphi(idim,i)=0;
-			for (jdim=0; jdim<dim; jdim++) 
+			for (idim=0; idim<dim; idim++) 
 			{
-			gradphi(idim,i) += jacinv(idim,jdim)*dphi(jdim,i);
+				gradphi(idim,i)=0;
+				for (jdim=0; jdim<dim; jdim++) 
+				{
+				gradphi(idim,i) += jacinv(idim,jdim)*dphi(jdim,i);
+				}
 			}
 		}
-	}
     gradphi.Print("Derivada real da funcao de forma");
       
     weight *= fabs(detjac);  // !!! Ajusta o peso do ponto de integracao ao determinante do jacobiano !!!
@@ -122,10 +124,22 @@ void telemento2d_quad::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& r
      * 
      */
 
-// IMPLEMENTAR - jacobiano (2,2)
+// IMPLEMENTAR - jacobiano (2,2) - ESTOU FAZENDO
 void telemento2d_quad::Jacobian(std::vector<double> &point, TPZFMatrix &jacobian, TPZFMatrix &jacinv, double &detjac, TMalha &malha)
 {
   if(!fNodes.size()) return;
+	//std::vector<double> phi(2,0) 
+	//TPZFMatrix dphi(0,2);
+	
+	int in;
+	for (in = 0 ; in < fPorder ; in++) 
+	{
+		//TNo &no = malha.getNode(fNodes[in]);
+		//TElemento::Shape1d(fPorder,point[0], phi, dphi);
+		
+		
+		//TElemento::Shape1d(fPorder,point[1], phi, dphi);		
+	}
   TNo &no1 = malha.getNode(fNodes[0]);
   TNo &no2 = malha.getNode(fNodes[fPorder]);
   double delx = sqrt(
@@ -146,10 +160,26 @@ void telemento2d_quad::Jacobian(std::vector<double> &point, TPZFMatrix &jacobian
      * @dphi valores das derivadas das funcoes de forma
      */
 
-// IMPLEMENTAR
+
 void telemento2d_quad::Shape(std::vector<double> &point, std::vector<double> &phi, TPZFMatrix &dphi)
 {
-  TElemento::Shape1d(fPorder, point, phi, dphi);
+	
+	std::vector<double> phi1d_a(fPorder+1), phi1d_b(fPorder+1), pt(1,0);
+	TPZFMatrix dphi1d_a(0,fPorder+1), dphi1d_b(0,fPorder+1);
+	pt[0] = point[0];
+  TElemento::Shape1d(fPorder, pt, phi1d_a, dphi1d_a);
+	pt[0] = point[1];
+	TElemento::Shape1d(fPorder, pt, phi1d_b, dphi1d_b);
+	int is, js;
+	for (is = 0 ; is < (fPorder+1) ; is++)
+	{
+		for (js = 0 ; js < (fPorder+1) ; js++ ) 
+		{
+			phi[is*3+js] = phi1d_a[js]*phi1d_b[is];
+			dphi(0,is*3+js) = dphi1d_a[js]*phi1d_b[is];
+			dphi(1,is*3+js) = phi1d_a[js]*dphi1d_b[is];
+		}
+	}
 }
 
     /**

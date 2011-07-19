@@ -77,7 +77,10 @@ void TElemento::Shape1d (int order, std::vector<double> & pt,std::vector<double>
         for(k=0; k <= order; k++)
         {
           double pointk = -1.+(k*2./order);
-          if(k!=j && k!=i) prod *= (pt[0]-pointk)/(pointi-pointk);
+          if(k!=j && k!=i)
+					{
+						prod *= (pt[0]-pointk)/(pointi-pointk);
+					}
         }
         dphi(0,i) += prod;
       }

@@ -40,7 +40,7 @@ void TAnalysis::Run()
    fSolution = globrhs;
    globstiff.Solve_LU(&fSolution);
 	
-	// Caso o valor seja muito pequeno, ele eh zero
+	 // Caso o valor seja muito pequeno, ele eh zero
 	 for (int i = 0; i < fSolution.Rows() ; i++) 
 	 {
 		 if (fabs(fSolution[i]) < 1.e-10) 

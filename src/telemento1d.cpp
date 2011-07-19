@@ -73,31 +73,31 @@ void TElemento1d::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& rhs)
     double x,weight;
     int ip;
     for(ip = 0; ip<npoints; ip++)
-  {
-   // intrule.Point(ip,point,weight);
-      
-    intrule.Point(ip, x, weight); // Retorna os pontos e os pesos obtidos pela Regra de Integracao
-      
-    pointstl[0] = x;
-    // compute the jacobian
-    double detjac;
-    Jacobian(pointstl,jac,jacinv,detjac,malha);
-    // compute the value of the shape functions
-    Shape(pointstl,phi,dphi);
-    // compute the derivative of the shapefunctions with respect to x
-    int i;
-    for(i=0; i<phi.size(); i++)
-    {
-      dphix(0,i) = jacinv(0,0)*dphi(0,i);
-    }
-    dphix.Print("Derivada real da funcao de forma");
-      
-    weight *= fabs(detjac);  // !!! Ajusta o peso do ponto de integracao ao determinante do jacobiano !!!
+		{
+		 // intrule.Point(ip,point,weight);
+				
+			intrule.Point(ip, x, weight); // Retorna os pontos e os pesos obtidos pela Regra de Integracao
+				
+			pointstl[0] = x;
+			// compute the jacobian
+			double detjac;
+			Jacobian(pointstl,jac,jacinv,detjac,malha);
+			// compute the value of the shape functions
+			Shape(pointstl,phi,dphi);
+			// compute the derivative of the shapefunctions with respect to x
+			int i;
+			for(i=0; i<phi.size(); i++)
+			{
+				dphix(0,i) = jacinv(0,0)*dphi(0,i);
+			}
+			dphix.Print("Derivada real da funcao de forma");
+				
+			weight *= fabs(detjac);  // !!! Ajusta o peso do ponto de integracao ao determinante do jacobiano !!!
 
-    cout << "Peso " << weight << endl;
-    // accumulate the contribution to the stiffness matrix
-    mat->Contribute(weight,phi,dphix,stiff,rhs);
-  }
+			cout << "Peso " << weight << endl;
+			// accumulate the contribution to the stiffness matrix
+			mat->Contribute(weight,phi,dphix,stiff,rhs);
+		}
 }
 //**********************************************************************//
 
