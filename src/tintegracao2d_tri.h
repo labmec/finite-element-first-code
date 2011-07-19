@@ -29,7 +29,7 @@ public:
     
     int NPoints();
     
-    void Point(int ip, std::vector<double> &x, double &weight);
+    void Point(int ip, std::pair<double,double> &x, double &weight);
 };
 /*
 class TIntegrategauher

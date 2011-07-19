@@ -7,18 +7,10 @@
 //
 
 #include "TIntegracao2d_quad.h"
-
-//#include "nr3.h"
 #include <cmath>
-//#include <math.h>
 #include <iostream>
-//#include "gauss_wgts.h"
 
 //**************Integracao pela Quadratura de Gauss-Legendre n-point***************
-
-
-// IMPLEMENTAR
-
 
 static void gauleg(const double x1, const double x2, std::vector <double> &x, std::vector <double> &w)
 {
@@ -29,7 +21,7 @@ static void gauleg(const double x1, const double x2, std::vector <double> &x, st
 	xm=0.5*(x2+x1);
 	xl=0.5*(x2-x1);
 	for (int i=0;i<m;i++) {
-		z=cos(3.14159265358979*(i+0.75)/(n+0.5)); // cos do math.h eh impreciso, USEI o do Numerical Recipes
+		z=cos(3.14159265358979*(i+0.75)/(n+0.5));
 		do {
 			p1=1.0;
 			p2=0.0;
@@ -49,8 +41,6 @@ static void gauleg(const double x1, const double x2, std::vector <double> &x, st
 	}
 }
 
-
-
 TIntegracao2d_quad::TIntegracao2d_quad(int order)
 {
     fOrder = order;
@@ -67,8 +57,8 @@ TIntegracao2d_quad::TIntegracao2d_quad(int order)
         np1d = (order/2+1);
 				np = np1d*np1d;
     }
-		tempvec.resize(np1d);
-		temppesos.resize(np1d);
+    tempvec.resize(np1d);
+    temppesos.resize(np1d);
     fPontos.resize(np);
     fPesos.resize(np);
 

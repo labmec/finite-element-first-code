@@ -7,10 +7,7 @@
 //
 
 #include "tintegracao.h"
-
-#include "nr3.h"
-//#include "gauss_wgts.h"
-//#include "gauss_wgts2.h"
+#include <cmath>
 
 static void gauleg(const double x1, const double x2, std::vector <double> &x, std::vector <double> &w)
 {
@@ -33,7 +30,7 @@ static void gauleg(const double x1, const double x2, std::vector <double> &x, st
 			pp=n*(z*p1-p2)/(z*z-1.0);
 			z1=z;
 			z=z1-p1/pp;
-		} while (abs(z-z1) > EPS);
+		} while (fabs(z-z1) > EPS);
 		x[i]=xm-xl*z;
 		x[n-1-i]=xm+xl*z;
 		w[i]=2.0*xl/((1.0-z*z)*pp*pp);
