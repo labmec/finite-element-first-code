@@ -10,12 +10,49 @@
 
 #include "telemento2d_quad.h"
 #include "pzfmatrix.h"
+#include "tmalha.h"
+#include "tmaterial1d.h"
 
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 
 BOOST_AUTO_TEST_SUITE(Elementoquad_2d_test)
+
+//Inacabado
+BOOST_AUTO_TEST_CASE(jacobian)
+{
+	TMalha malha;
+	int morder = 2;
+	std::vector <int> nodes(9,0);
+	for (int i = 0 ; i < 9 ; i++) 
+	{
+		nodes[i] = i;
+	}
+	
+	std::vector<double> co(2,0);
+	for (double i = 0; i <= 1 ; i += 0.5) 
+	{
+		for (double j = 0 ; j <= 1; j = j + 0.5)
+		{
+			co[0] = j;
+			co[1] = i;
+			TNo no(co);
+			malha.insertNode(no);
+		}
+	}
+	
+	int id = 1, k = 1, c = 0, b = 1, f = 1;
+	TMaterial1d *mat = new TMaterial1d(id,k,c,b,f);
+	malha.insertMaterial(mat);
+	telemento2d_quad *elem = new telemento2d_quad(1,morder,nodes);
+	malha.insertElement(elem);
+	TPZFMatrix stiff, rhs;
+	std::vector <double> ponto(2,0);
+	double detjac;
+	elem->JacobTest(malha,stiff,rhs,ponto,detjac);
+	BOOST_CHECK_EQUAL(detjac,0.25);
+}
 
 BOOST_AUTO_TEST_CASE(shape_functions)
 {
@@ -70,90 +107,5 @@ BOOST_AUTO_TEST_CASE(shape_functions)
 	}
 	
 }
-
-/*
-BOOST_AUTO_TEST_CASE(test_npoints)
-{
-	
-	TIntegracao2d_quad intrule(1);
-	int npoints = intrule.NPoints();
-	
-	BOOST_CHECK_EQUAL(npoints,1);
-	
-	TIntegracao2d_quad intrule2(2);
-	npoints = intrule2.NPoints();
-	
-	BOOST_CHECK_EQUAL(npoints,4);
-	
-	TIntegracao2d_quad intrule3(4);
-	npoints = intrule3.NPoints();
-	
-	BOOST_CHECK_EQUAL(npoints,9);
-}
-
-BOOST_AUTO_TEST_CASE(known_result)
-{
-	
-	TIntegracao2d_quad intrule(6);
-	int npoints = intrule.NPoints();
-	double weight, result = 0;
-	std::pair <double,double> x;
-	for (int i = 0; i < npoints; i++) 
-	{
-		intrule.Point(i, x, weight);
-		result += func(x.first, x.second)*weight;
-	}
-	double exact = 2.197;
-	
-	
-	BOOST_CHECK_SMALL(result-exact,1E-3);
-}
-
-// soma dos pesos deve ser 4
-BOOST_AUTO_TEST_CASE(weightsum)
-{
-	TIntegracao2d_quad intrule(1);
-	int npoints = intrule.NPoints();
-	double weight, sum = 0;
-	std::pair <double,double> x;
-	for (int i = 0 ; i < npoints ; i++) 
-	{
-		intrule.Point(i, x, weight);
-		sum += weight;
-	}
-	BOOST_CHECK_SMALL(sum-4, 1E-8);
-	
-	TIntegracao2d_quad intrule2(2);
-	npoints = intrule2.NPoints();
-	sum = 0;
-	for (int i = 0 ; i < npoints ; i++) 
-	{
-		intrule2.Point(i, x, weight);
-		sum += weight;
-	}
-	BOOST_CHECK_SMALL(sum-4, 1E-8);
-	
-	TIntegracao2d_quad intrule3(4);
-	npoints = intrule3.NPoints();
-	sum = 0;
-	for (int i = 0 ; i < npoints ; i++) 
-	{
-		intrule3.Point(i, x, weight);
-		sum += weight;
-	}
-	BOOST_CHECK_SMALL(sum-4, 1E-8);
-	
-}
-
-BOOST_AUTO_TEST_CASE(pontoforadoescopo)
-{
-	TIntegracao2d_quad unid(3);
-	std::pair<double,double> ponto(0,0);
-	double peso;
-	int np = unid.NPoints();
-	BOOST_CHECK_THROW(unid.Point(np,ponto,peso), femsc_exception);
-	BOOST_CHECK_THROW(unid.Point(-1,ponto,peso), femsc_exception);
-}
-*/
 
 BOOST_AUTO_TEST_SUITE_END()

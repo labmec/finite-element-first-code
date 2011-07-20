@@ -16,8 +16,8 @@
 TIntegracao2d_tri::TIntegracao2d_tri(int order)
 {
     fOrder = order;
-    int np, xmin = -1., xmax = 1.;
-    switch(order)// está correto: order*order?
+    int np;
+    switch(order)
     {
         case 1:
             np = 1;

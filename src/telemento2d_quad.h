@@ -21,6 +21,7 @@
 #define telemento2d_quad_H
 
 #include <telemento.h>
+#include "pzfmatrix.h"
 
 /**
 @author Philippe R. B. Devloo
@@ -37,6 +38,7 @@ public:
     virtual MElementType getElType();
     virtual void CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& rhs);
     virtual void Jacobian(std::vector< double >& point, TPZFMatrix& jacobian, TPZFMatrix& jacinv, double &detjac, TMalha& malha);
+		void JacobTest(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& rhs, std::vector <double> &ponto, double &detjacob);
     
     
     /**
@@ -53,8 +55,11 @@ public:
      * @param energy [out] erro na norma de energia
      * @param l2 [out] erro na norma l2
      */
-virtual void Error(TPZFMatrix &solution, TMalha &malha, void (f)(std::vector<double> &,double &, std::vector<double> &), double &energy, double &l2);
+	virtual void Error(TPZFMatrix &solution, TMalha &malha, void (f)(std::vector<double> &,double &, std::vector<double> &), double &energy, double &l2);
 
+private:
+	std::vector <double> fphi;
+	TPZFMatrix fdphi;
 
 };
 

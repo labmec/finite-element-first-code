@@ -49,7 +49,7 @@ MElementType telemento2d_quad::getElType()
 }
 
 
-// IMPLEMENTAR
+
 void telemento2d_quad::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& rhs)
 {
 	int Nshape=(this->fPorder+1)*(this->fPorder+1);
@@ -88,9 +88,24 @@ void telemento2d_quad::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& r
 
 		// compute the value of the shape functions
     Shape(pointstl,phi,dphi);
+		
+		// Acredito que de pra fazer melhor do que definir dois novos atributos
+		this->fphi.resize(Nshape);
+		this->fdphi.Redim(dim, Nshape);
+		for (int ishape = 0; ishape < Nshape; ishape++) 
+		{
+			fphi[ishape] = phi[ishape];
+			for (int idim = 0 ; idim < dim; idim++) 
+			{
+				fdphi(idim,ishape) = dphi(idim,ishape);				
+			}
+		}
+		
     // compute the jacobian
     double detjac;
     Jacobian(pointstl,jac,jacinv,detjac,malha);
+
+		
     // compute the derivative of the shapefunctions with respect to x
     int i,j,idim,jdim;
     for(i=0; i<phi.size(); i++)
@@ -100,7 +115,7 @@ void telemento2d_quad::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& r
 				gradphi(idim,i)=0;
 				for (jdim=0; jdim<dim; jdim++) 
 				{
-				gradphi(idim,i) += jacinv(idim,jdim)*dphi(jdim,i);
+					gradphi(idim,i) += jacinv(jdim,idim)*dphi(jdim,i); // Aqui estava jacinv(idim,jdim), troquei, pois acho que o certo eh o contrario
 				}
 			}
 		}
@@ -128,29 +143,36 @@ void telemento2d_quad::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& r
 void telemento2d_quad::Jacobian(std::vector<double> &point, TPZFMatrix &jacobian, TPZFMatrix &jacinv, double &detjac, TMalha &malha)
 {
   if(!fNodes.size()) return;
-	//std::vector<double> phi(2,0) 
-	//TPZFMatrix dphi(0,2);
-	
+  jacobian.Resize(2,2);	
+	jacinv.Resize(2,2);
 	int in;
-	for (in = 0 ; in < fPorder ; in++) 
+	for (in = 0 ; in < fNodes.size() ; in++) 
 	{
-		//TNo &no = malha.getNode(fNodes[in]);
-		//TElemento::Shape1d(fPorder,point[0], phi, dphi);
-		
-		
-		//TElemento::Shape1d(fPorder,point[1], phi, dphi);		
+		TNo &no = malha.getNode(fNodes[in]);
+		jacobian(0,0) += no.Co(0)*fdphi(0,in);
+		jacobian(0,1) += no.Co(0)*fdphi(1,in);
+		jacobian(1,0) += no.Co(1)*fdphi(0,in);
+		jacobian(1,1) += no.Co(1)*fdphi(1,in);
 	}
-  TNo &no1 = malha.getNode(fNodes[0]);
+	detjac = jacobian(0,0)*jacobian(1,1)-jacobian(0,1)*jacobian(1,0);
+	double invdetjac = 1/detjac;
+	jacinv(0,0) = invdetjac*jacobian(1,1);
+	jacinv(0,1) = -invdetjac*jacobian(0,1);
+	jacinv(1,0) = -invdetjac*jacobian(1,0);
+	jacinv(1,1) = invdetjac*jacobian(0,0);
+	jacinv.Print("JacInv:");
+	
+  /*TNo &no1 = malha.getNode(fNodes[0]);
   TNo &no2 = malha.getNode(fNodes[fPorder]);
   double delx = sqrt(
     (no1.Co(0)-no2.Co(0))*(no1.Co(0)-no2.Co(0))+
     (no1.Co(1)-no2.Co(1))*(no1.Co(1)-no2.Co(1))
     );
-  jacobian.Resize(1,1);
+
   jacinv.Resize(1,1);
   jacobian(0,0) = delx/2.;
   jacinv(0,0) = 2./delx;
-  detjac = jacobian(0,0);
+  detjac = jacobian(0,0);*/
 }
 
     /**
@@ -245,4 +267,60 @@ void telemento2d_quad::Error(TPZFMatrix &solution, TMalha &malha, void (exact)(s
    energy = sqrt(energy);
    l2 = sqrt(l2);*/
 
+}
+
+void telemento2d_quad::JacobTest(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& rhs, std::vector <double> &ponto, double &detjacob)
+{
+	int Nshape=(this->fPorder+1)*(this->fPorder+1);
+	int dim=2;
+  std::vector<double> phi(Nshape),pointstl(dim,0.);
+  TPZFMatrix dphi(dim,Nshape), gradphi(dim,Nshape);
+  TPZFMatrix jac(dim,dim),jacinv(dim,dim);
+  // TPZInt1d intrule(fPorder+fPorder);
+	
+  //*************** Chama a Regra de Integracao Numerica ***************//
+	
+  /*TIntegracao2d_quad intrule(fPorder+fPorder); // A ordem do polinomio que pode ser integrado eh (2x num de ptos - 1)
+  stiff.Redim(Nshape,Nshape);
+  rhs.Redim(Nshape,1);
+  TMaterial *mat = malha.getMaterial(fMaterialId);
+  */
+  //int npoints = intrule.NPoints();
+	//int npoints = intrule.NPoints(); //Retorna o tamanho de fPontos
+	
+  //  cout << "numpontospz="<<npoints<<"numpointsmeu="<<npoints2<<endl;  !!!!! Teste para checar se o num de pontos da nova regra de integracao estah igual ao anterior !!!!
+  
+	//std::pair<double,double> x;
+	
+	//  double weight;
+	//double weight;
+	//int ip;
+	//intrule.Point(ip,point,weight);
+	
+	// AGORA RECEBE UM PAIR NO X
+	//intrule.Point(ip, x, weight); // Retorna os pontos e os pesos obtidos pela Regra de Integracao
+	
+	pointstl[0] = ponto[0];
+	pointstl[1] = ponto[1];
+	
+	// compute the value of the shape functions
+	Shape(pointstl,phi,dphi);
+	
+	// Acredito que de pra fazer melhor do que definir dois novos atributos
+	this->fphi.resize(Nshape);
+	this->fdphi.Redim(dim, Nshape);
+	for (int ishape = 0; ishape < Nshape; ishape++) 
+	{
+		fphi[ishape] = phi[ishape];
+		for (int idim = 0 ; idim < dim; idim++) 
+		{
+			fdphi(idim,ishape) = dphi(idim,ishape);				
+		}
+	}
+	
+	// compute the jacobian
+	double detjac;
+	Jacobian(pointstl,jac,jacinv,detjac,malha);
+	detjacob = detjac;
+	
 }
