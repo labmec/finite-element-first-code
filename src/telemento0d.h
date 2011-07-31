@@ -61,6 +61,7 @@ virtual void Error(TPZFMatrix &solution, TMalha &malha, void (f)(std::vector<dou
      	energy = 0.;
 	l2 = 0.;
      }
+	virtual void RealCoord(std::vector <double> &point, TMalha &malha);
 
 
 };

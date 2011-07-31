@@ -21,7 +21,7 @@
 #define telemento2d_quad_H
 
 #include <telemento.h>
-#include "pzfmatrix.h"
+
 
 /**
 @author Philippe R. B. Devloo
@@ -57,9 +57,10 @@ public:
      */
 	virtual void Error(TPZFMatrix &solution, TMalha &malha, void (f)(std::vector<double> &,double &, std::vector<double> &), double &energy, double &l2);
 
-private:
-	std::vector <double> fphi;
-	TPZFMatrix fdphi;
+	virtual void RealCoord(std::vector <double> &point, TMalha &malha);
+	
+	void ComputeSol(TPZFMatrix& sol, double &val, std::vector <double> &deriv);
+	
 
 };
 

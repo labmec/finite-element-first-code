@@ -17,22 +17,26 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef TMATERIALBC_H
-#define TMATERIALBC_H
+#include "tmaterial2d.h"
+#include "pzfmatrix.h"
 
-#include <tmaterial.h>
-
-/**
-This class implements the contribution of a boundary condition
-
-@author Philippe R. B. Devloo
-*/
-class TMaterialBC : public TMaterial
+TMaterial2d::TMaterial2d(int id, double K, double C, double B, double F) : TMaterial(id), fK(K), fC(C), fB(B), fF(F)
 {
-public:
-    TMaterialBC(int id, int bctype, double contrstiff, double contrrhs);
+}
 
-    ~TMaterialBC();
+
+
+TMaterial2d::~TMaterial2d()
+{
+}
+
+
+void TMaterial2d::Print(std::ostream& out) const
+{
+    TMaterial::Print(out);
+    out << "Coeficient values K " << fK << " C " << fC << " B " << fB << " F " << fF << std::endl;
+}
+
   /**
    * Calcula o valor da contribuição da equação variacional no ponto dado
    * na matriz de rigidez do elemento e no vetor de carga
@@ -43,13 +47,48 @@ public:
    * @param elementK [inout]: matriz de rigidez do elemento
    * @param elementF [inout]: vetor de carga do elemento
    */
-  virtual void Contribute (std::vector<double> &point, double  weight,
+void TMaterial2d::Contribute (std::vector<double> &point, double  weight,
                            std::vector<double> & philVal,
                            TPZFMatrix & dphi,TPZFMatrix & elementK,
-                           TPZFMatrix & elementF) const; 
+                           TPZFMatrix & elementF) const
+{
+	
+  int i, j, nshape;
+	nshape = philVal.size();
+	
+	if (fForcing) 
+	{
+		std::vector <double> force;
+		fForcing(point, force);
+		for(i=0; i<nshape; i++)
+		{
+			elementF(i,0) += weight*philVal[i]*force[0];
+			for(j=0; j<nshape; j++)
+			{
+				elementK(i,j) += dphi(0,i)*dphi(0,j)*fK*weight+
+				philVal[i]*dphi(0,j)*weight*fC+
+				philVal[i]*philVal[j]*fB*weight;
+			}
+		}
+		
+	}
+	else
+	{
+		for(i=0; i<nshape; i++)
+		{
+			elementF(i,0) += weight*philVal[i]*fF;
+			for(j=0; j<nshape; j++)
+			{
+				elementK(i,j) += dphi(0,i)*dphi(0,j)*fK*weight + dphi(1,i)*dphi(1,j)*fK*weight+
+				philVal[i]*philVal[j]*fB*weight;
+			}
+		}
+		
+	}
+}
+
    /**
     * Calcula a contribuicao para o erro da solucao
-    * @param x [in] localizacao do ponto
     * @param weight [in] peso do ponto de integracao
     * @param sol [in] valor da solucao
     * @param deriv [in] valor da derivada da solucao
@@ -58,26 +97,20 @@ public:
     * @param l2 [in/out] contribuicao para norma em L2
     *
     */
-   virtual void ContributeErrorSquare(std::vector<double> &x, double weight, double sol, std::vector<double> &deriv,
+void TMaterial2d::ContributeErrorSquare(std::vector<double> &x, double weight, double sol, std::vector<double> &deriv,
    	void (function)(std::vector<double>& x, double &val, std::vector<double>&der), double &energy, double &l2)
+{
+	double solexact;
+	int dimension = deriv.size();
+	std::vector <double> derivsolexact(dimension); // para acessar o dphi/dy usa-se i*dimension
+	function(x,solexact,derivsolexact);
+	int id;
+	for(id=0; id<dimension; id++)
 	{
+	   energy += weight*(deriv[id]-derivsolexact[id])*(deriv[id]-derivsolexact[id])
+						 + weight*(deriv[id]-derivsolexact[id])*(deriv[id]-derivsolexact[id]);
 	}
-
-    virtual void Print(std::ostream& out) const;
-
-protected:
-  /**
-  * value to be contributed to the stiffness matrix
-  */
-    double fContrStiff;
-    /**
-    * value to be contributed to the rhs
-    */
-    double fContrRhs;
-    /**
-    * boundary condition type 0:Dirichlet 1:Neumann 2: Mixed
-    */
-    int fBCType;
-};
-
-#endif
+	energy += weight*(sol-solexact)*(sol-solexact);
+	l2 += weight*(sol-solexact)*(sol-solexact);
+	
+} 

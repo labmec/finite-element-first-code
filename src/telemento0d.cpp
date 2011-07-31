@@ -52,7 +52,7 @@ void TElemento0d::CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& rhs)
   Shape(point,phi,dphi);
   double weight = 1.;
   TMaterial *mat = malha.getMaterial(this->fMaterialId);
-  mat->Contribute(weight,phi,dphi,stiff,rhs);
+  mat->Contribute(point,weight,phi,dphi,stiff,rhs);
 }
 
 void TElemento0d::Jacobian(std::vector< double >& point, TPZFMatrix& jacobian, TPZFMatrix& jacinv, double &detjac, TMalha& malha)
@@ -83,4 +83,9 @@ void TElemento0d::Shape(std::vector<double> &point, std::vector<double> &phi, TP
   phi.resize(1);
   phi[0] = 1.;
   dphi.Resize(0,1);
+}
+
+void TElemento0d::RealCoord(std::vector <double> &point, TMalha &malha)
+{
+	
 }

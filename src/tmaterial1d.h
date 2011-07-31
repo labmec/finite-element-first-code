@@ -45,7 +45,7 @@ public:
    * @param elementK [inout]: matriz de rigidez do elemento
    * @param elementF [inout]: vetor de carga do elemento
    */
-  virtual void Contribute (double  weight,
+  virtual void Contribute (std::vector<double> &point, double  weight,
                            std::vector<double> & philVal,
                            TPZFMatrix & dphi,TPZFMatrix & elementK,
                            TPZFMatrix & elementF) const; 

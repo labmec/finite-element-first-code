@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <iostream>
+#include "pzfmatrix.h"
 
 class TPZFMatrix;
 
@@ -60,7 +61,7 @@ public: //funções de cálculo
    * @param elementK [inout]: matriz de rigidez do elemento
    * @param elementF [inout]: vetor de carga do elemento
    */
-  virtual void Contribute (double  weight,
+  virtual void Contribute (std::vector<double> &point, double  weight,
                            std::vector<double> & philVal,
                            TPZFMatrix & dphi,TPZFMatrix & elementK,
                            TPZFMatrix & elementF) const = 0; 
@@ -79,11 +80,17 @@ public: //funções de cálculo
    virtual void ContributeErrorSquare(std::vector<double> &x, double weight, double sol, std::vector<double> &deriv,
    	void (function)(std::vector<double>& x, double &val, std::vector<double>&der), double &energy, double &l2) = 0;
 	
+	
 public://Diversos
   /**
    * Imprime os dados da classe
    */
   virtual void Print(std::ostream &out = std::cout) const;
+	
+	virtual void SetForcingFunction(void (*func)(std::vector<double> &point, std::vector<double> &force))
+	{
+		fForcing = func;
+	}
   
   /**
    * retorna o identificador do material
@@ -99,6 +106,7 @@ protected:
    */
    int fId;
    
+	void (*fForcing)(std::vector<double> &point, std::vector<double> &force);
 };
 
 #endif

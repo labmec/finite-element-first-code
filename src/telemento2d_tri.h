@@ -55,6 +55,7 @@ public:
      */
 virtual void Error(TPZFMatrix &solution, TMalha &malha, void (f)(std::vector<double> &,double &, std::vector<double> &), double &energy, double &l2);
 
+	virtual void RealCoord(std::vector <double> &point, TMalha &malha);
 
 };
 

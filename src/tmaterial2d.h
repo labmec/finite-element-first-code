@@ -17,22 +17,24 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef TMATERIALBC_H
-#define TMATERIALBC_H
+#ifndef TMATERIAL2D_H
+#define TMATERIAL2D_H
 
 #include <tmaterial.h>
 
 /**
-This class implements the contribution of a boundary condition
+This class implements the variational formulation of a 2D partial differential equation
 
 @author Philippe R. B. Devloo
 */
-class TMaterialBC : public TMaterial
+class TMaterial2d : public TMaterial
 {
 public:
-    TMaterialBC(int id, int bctype, double contrstiff, double contrrhs);
+    
+    TMaterial2d(int id, double K, double C, double B, double F);
 
-    ~TMaterialBC();
+    ~TMaterial2d();
+
   /**
    * Calcula o valor da contribuição da equação variacional no ponto dado
    * na matriz de rigidez do elemento e no vetor de carga
@@ -59,25 +61,17 @@ public:
     *
     */
    virtual void ContributeErrorSquare(std::vector<double> &x, double weight, double sol, std::vector<double> &deriv,
-   	void (function)(std::vector<double>& x, double &val, std::vector<double>&der), double &energy, double &l2)
-	{
-	}
+   	void (function)(std::vector<double>& x, double &val, std::vector<double>&der), double &energy, double &l2)  ;                      
 
     virtual void Print(std::ostream& out) const;
 
 protected:
+
   /**
-  * value to be contributed to the stiffness matrix
-  */
-    double fContrStiff;
-    /**
-    * value to be contributed to the rhs
-    */
-    double fContrRhs;
-    /**
-    * boundary condition type 0:Dirichlet 1:Neumann 2: Mixed
-    */
-    int fBCType;
+   * Definition of the differential equation coeficients according to the book of Becker, Carey and Oden
+   */
+  double fK, fC, fB, fF;
+  
 };
 
 #endif

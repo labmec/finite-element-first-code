@@ -40,13 +40,16 @@ void TMaterialBC::Print(std::ostream& out) const
     out << " BC values stiff " << fContrStiff << " rhs " << fContrRhs << std::endl;
 }
 
-void TMaterialBC::Contribute (double  weight,
+void TMaterialBC::Contribute (std::vector<double> &point, double  weight,
                            std::vector<double> & philVal,
                            TPZFMatrix & dphi,TPZFMatrix & elementK,
                            TPZFMatrix & elementF) const 
   {
     int i, nshape, j;
     nshape = philVal.size();
+		//std::vector <double> force;
+		//fForcing(point, force);
+		
     switch(fBCType) 
     {
       case 0: // DIRICHLET

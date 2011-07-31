@@ -47,23 +47,47 @@ void TMaterial1d::Print(std::ostream& out) const
    * @param elementK [inout]: matriz de rigidez do elemento
    * @param elementF [inout]: vetor de carga do elemento
    */
-void TMaterial1d::Contribute (double  weight,
+void TMaterial1d::Contribute (std::vector<double> &point, double  weight,
                            std::vector<double> & philVal,
                            TPZFMatrix & dphi,TPZFMatrix & elementK,
                            TPZFMatrix & elementF) const
 {
   int i, j, nshape;
   nshape = philVal.size();
-  for(i=0; i<nshape; i++)
-  {
-    elementF(i,0) += weight*philVal[i]*fF;
-    for(j=0; j<nshape; j++)
-    {
-      elementK(i,j) += dphi(0,i)*dphi(0,j)*fK*weight+
-            philVal[i]*dphi(0,j)*weight*fC+
-            philVal[i]*philVal[j]*fB*weight;
-    }
-  }
+
+
+	
+	if (fForcing) 
+	{
+		std::vector <double> force;
+		fForcing(point, force);
+		for(i=0; i<nshape; i++)
+		{
+			elementF(i,0) += weight*philVal[i]*force[0];
+			for(j=0; j<nshape; j++)
+			{
+				elementK(i,j) += dphi(0,i)*dphi(0,j)*fK*weight+
+				philVal[i]*dphi(0,j)*weight*fC+
+				philVal[i]*philVal[j]*fB*weight;
+			}
+		}
+		
+	}
+	else 
+	{
+		for(i=0; i<nshape; i++)
+		{
+			elementF(i,0) += weight*philVal[i]*fF;
+			for(j=0; j<nshape; j++)
+			{
+				elementK(i,j) += dphi(0,i)*dphi(0,j)*fK*weight+
+				philVal[i]*dphi(0,j)*weight*fC+
+				philVal[i]*philVal[j]*fB*weight;
+			}
+		}
+		
+	}
+
 }
 
    /**

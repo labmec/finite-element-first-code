@@ -22,6 +22,7 @@
 
 #include <telemento.h>
 
+
 /**
 @author Philippe R. B. Devloo
 */
@@ -37,7 +38,8 @@ public:
     virtual MElementType getElType();
     virtual void CalcStiff(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& rhs);
     virtual void Jacobian(std::vector< double >& point, TPZFMatrix& jacobian, TPZFMatrix& jacinv, double &detjac, TMalha& malha);
-    
+	//virtual void RealCoord(std::vector <double> &point);
+
     
     /**
      * Calcula os valores das funcoes de forma e suas derivadas
@@ -54,6 +56,9 @@ public:
      * @param l2 [out] erro na norma l2
      */
 virtual void Error(TPZFMatrix &solution, TMalha &malha, void (f)(std::vector<double> &,double &, std::vector<double> &), double &energy, double &l2);
+
+	virtual void RealCoord(std::vector <double> &point, TMalha &malha);
+	
 
 
 };

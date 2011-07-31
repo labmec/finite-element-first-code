@@ -37,6 +37,10 @@
 #include "pzquad.h"
 #include "pzvec.h"
 #include "telemento2d_quad.h"
+#include "tmaterial2d.h"
+#include "telemento2d_tri.h"
+//#include "log4cxx.h"
+
 
 //using namespace std;
 
@@ -45,6 +49,17 @@ double Integrate(int ord, double xmin, double xmax,double (*g)(double x));
 double func(double x, double y);
 
 void ReadMesh(TMalha &malha, std::string &filename);
+
+void ReadMeshGid(TMalha &malha, std::string &Filename);
+
+void ReadMeshGidTri(TMalha &malha, std::string &Filename);
+
+void ForcingFunction(std::vector<double> &point, std::vector<double> &force);
+
+void Exact(std::vector<double> &x, double &val, std::vector<double> &deriv);
+
+void ExactQuad(std::vector <double> &x, double &val, std::vector <double> &deriv);
+
 
 int main(int argc, char *argv[])
 {
@@ -79,9 +94,16 @@ int main(int argc, char *argv[])
   }
   TMalha NumeroUm;
   std::string filename(argv[1]);
-  ReadMesh(NumeroUm,filename);
+  ReadMeshGidTri(NumeroUm,filename);
+  //ReadMeshGid(NumeroUm,filename);
+	//ReadMesh(NumeroUm,filename);
   TAnalysis analysis(&NumeroUm);
   analysis.Run();
+	double energy, l2;
+	
+	//analysis.Error(ExactQuad, energy, l2);
+	//std::cout << energy << "\t" << l2 ;
+
     
   return EXIT_SUCCESS;
 }
@@ -122,6 +144,8 @@ double func(double x, double y)
   return (1+x)/(2+y);
 }
 
+
+
 void ReadMesh(TMalha &malha, std::string &filename)
 {
    int nmat,nbc,npoint; 
@@ -130,19 +154,28 @@ void ReadMesh(TMalha &malha, std::string &filename)
    int im;
    for(im=0; im<nmat; im++) // lendo materiais
    {
-   	int id;
-	double k,c,b,f;
-	input >> id >> k >> c >> b >> f;
-	TMaterial1d *mat1d = new TMaterial1d(id,k,c,b,f);
-	malha.insertMaterial(mat1d);
+		 int id;
+		 double k,c,b,f;
+		 input >> id >> k >> c >> b >> f;
+		 if(f == -1000)
+		 {
+			 TMaterial1d *mat1d = new TMaterial1d(id,k,c,b,f);
+			 mat1d->SetForcingFunction(ForcingFunction);
+			 malha.insertMaterial(mat1d);
+		 }
+		 else 
+		 {
+			 TMaterial1d *mat1d = new TMaterial1d(id,k,c,b,f);
+			 malha.insertMaterial(mat1d);
+		 }
    }
    for(im=0; im<nbc; im++) // lendo cond de contorno
    {
    	int id, type;
-	double contrstiff, contrrhs;
-	input >> id >> type >> contrstiff >> contrrhs;
-	TMaterialBC *matbc = new TMaterialBC(id,type,contrstiff,contrrhs);
-	malha.insertMaterial(matbc);
+		 double contrstiff, contrrhs;
+		 input >> id >> type >> contrstiff >> contrrhs;
+		 TMaterialBC *matbc = new TMaterialBC(id,type,contrstiff,contrrhs);
+		 malha.insertMaterial(matbc);
    }
    for(im=0; im < npoint; im++) // lendo os pontos com cond de contorno no meio da malha
    {
@@ -198,4 +231,382 @@ void ReadMesh(TMalha &malha, std::string &filename)
    nodes[0] = count;
    elem = new TElemento0d(matright,order,nodes); // condicao da direita
    malha.insertElement(elem);
+}
+
+void ReadMeshGid(TMalha &malha, std::string &FileName) 
+{
+	int numnodes=-1;
+	int numelements=-1;
+	int numelements1d=-1;
+	int id = 1;
+	double k = 1, c = 0, b = 0, f = -1;
+	TMaterial2d *mat2d = new TMaterial2d(id,k,c,b,f);
+	malha.insertMaterial(mat2d);
+	
+	//string FileName;
+	//FileName = "8andares02.txt";
+	
+	{
+		bool countnodes = false;
+		bool countelements = false;
+		
+		std::ifstream read (FileName.c_str());
+		
+		while(read)
+		{
+			char buf[1024];
+			read.getline(buf, 1024);
+			std::string str(buf);
+			if(str == "Coordinates") countnodes = true;
+			if(str == "end coordinates") countnodes = false;
+			if(countnodes) numnodes++;
+			
+			if(str == "Elements") countelements = true;
+			if(str == "end elements")
+			{
+				countelements = false;
+				while (read) 
+				{
+					char buf[1024];
+					read.getline(buf, 1024);
+					std::string str(buf);
+					if(str == "Coordinates")
+					{
+						numnodes--;
+						countnodes = true;					
+					}
+					if(str == "end coordinates") countnodes = false;
+					if(countnodes) numnodes++;
+					
+					if(str == "Elements") countelements = true;
+					if(str == "end elements") countelements = false;
+					if(countelements) numelements1d++;	
+				}
+				
+			}
+			if(countelements) numelements++;
+			
+			
+		}
+	}
+
+
+	int nodeId = 0, elementId = 0, matElId = 0;
+	std::ifstream read;
+	read.open(FileName.c_str());
+	
+	double nodecoordX , nodecoordY , nodecoordZ ;
+	
+	char buf[1024];
+	read.getline(buf, 1024);
+	read.getline(buf, 1024);
+	std::string str(buf);
+	int in;
+	std::vector <double> co(3,0);
+	for(in=0; in<numnodes; in++)
+	{ 
+		read >> nodeId;
+		nodeId--;
+		read >> nodecoordX;
+		read >> nodecoordY;
+		read >> nodecoordZ;
+		co[0] = nodecoordX;
+		co[1] = nodecoordY;
+		co[2] = nodecoordZ;
+		TNo no(co);
+		malha.insertNode(no);		
+	}
+	
+
+
+	{
+		read.close();
+		read.open(FileName.c_str());
+		
+		int l , m = numnodes+5;
+		for(l=0; l<m; l++)
+		{
+			read.getline(buf, 1024);
+		}
+		// Soh funciona para porder 1
+		int mat = 1, morder = 1;
+		std::vector <int> nodes(4,0);
+		int el;
+		for(el=0; el<numelements; el++)
+		{
+			read >> elementId;
+			read >> nodes[0]; //node 1
+			read >> nodes[1]; //node 2
+			read >> nodes[2]; //node 3
+			read >> nodes[3]; //node 4
+			
+			// O GID comeca com 1 na contagem dos nodes, e nao zero como no programa, assim o node 1 na verdade Ž o node 0
+			nodes[0]--;
+			nodes[1]--;
+			nodes[2]--;
+			nodes[3]--; 
+			
+			telemento2d_quad *elem = new telemento2d_quad(mat,morder,nodes);
+			malha.insertElement(elem);
+		}
+		
+		//Dirichilet em baixo
+		double id = 2, type = 0, contrstiff = 0, contrrhs = 0;
+		TMaterialBC *matbc1 = new TMaterialBC(id,type,contrstiff,contrrhs);
+		malha.insertMaterial(matbc1);
+		
+		// Neumann
+		id = 3;
+		type = 1;
+		contrstiff = 0;
+		contrrhs = 0;
+		TMaterialBC *matbc2 = new TMaterialBC(id,type,contrstiff,contrrhs);
+		malha.insertMaterial(matbc2);
+		
+		// Dirichilet em cima 
+		id = 4;
+		type = 0;
+		contrstiff = 0;
+		contrrhs = 2;
+		TMaterialBC *matbc3 = new TMaterialBC(id,type,contrstiff,contrrhs);
+		malha.insertMaterial(matbc3);
+
+
+		for(l=0; l<7; l++)
+		{
+			read.getline(buf, 1024);
+		}
+		
+		nodes.resize(2,0);
+		mat = 2;
+		for(el=0; el<numelements1d; el++)
+		{
+			read >> elementId;
+			read >> nodes[0]; //node 1
+			read >> nodes[1]; //node 2
+			
+			// O GID comeca com 1 na contagem dos nodes, e nao zero como no programa, assim o node 1 na verdade Ž o node 0
+			nodes[0]--;
+			nodes[1]--;
+			
+			TNo &no1 = malha.getNode(nodes[0]);
+			TNo	&no2 = malha.getNode(nodes[1]);
+			
+			if (no1.Co(1) == 0 && no2.Co(1) == 0) 
+			{
+				mat = 2;
+				TElemento1d *elem = 
+				new TElemento1d(mat,morder,nodes);
+				malha.insertElement(elem);
+			}
+			else if (no1.Co(1) == 2 && no2.Co(1) == 2)
+			{
+				mat = 4;
+				TElemento1d *elem = new TElemento1d(mat,morder,nodes);
+				malha.insertElement(elem);
+			}
+
+		}
+		
+	}
+	
+}
+
+
+void ForcingFunction(std::vector<double> &point, std::vector<double> &force)
+{
+	force.resize(1);
+	force[0] = point[0];	
+}
+
+void Exact(std::vector<double> &x, double &val, std::vector<double> &deriv)
+{
+	val = -1 + cos(x[0]) - sin(x[0])/tan(1) + sin(x[0])/sin(1);
+	deriv[0] = -cos(x[0])/tan(1) + cos(x[0])/sin(1) - sin(x[0]);
+}
+
+void ExactQuad(std::vector <double> &x, double &val, std::vector <double> &deriv)
+{
+	deriv.resize(2,0);
+	val = x[1]*x[1]/2;
+	deriv[0] = 0;
+	deriv[1] = x[1];
+	
+}
+
+void ReadMeshGidTri(TMalha &malha, std::string &FileName)
+{
+	int numnodes=-1;
+	int numelements=-1;
+	int numelements1d=-1;
+	int id = 1;
+	double k = 1, c = 0, b = 0, f = -1;
+	TMaterial2d *mat2d = new TMaterial2d(id,k,c,b,f);
+	malha.insertMaterial(mat2d);
+	
+	//string FileName;
+	//FileName = "8andares02.txt";
+	
+	{
+		bool countnodes = false;
+		bool countelements = false;
+		
+		std::ifstream read (FileName.c_str());
+		
+		while(read)
+		{
+			char buf[1024];
+			read.getline(buf, 1024);
+			std::string str(buf);
+			if(str == "Coordinates") countnodes = true;
+			if(str == "end coordinates") countnodes = false;
+			if(countnodes) numnodes++;
+			
+			if(str == "Elements") countelements = true;
+			if(str == "end elements")
+			{
+				countelements = false;
+				while (read) 
+				{
+					char buf[1024];
+					read.getline(buf, 1024);
+					std::string str(buf);
+					if(str == "Coordinates")
+					{
+						numnodes--;
+						countnodes = true;					
+					}
+					if(str == "end coordinates") countnodes = false;
+					if(countnodes) numnodes++;
+					
+					if(str == "Elements") countelements = true;
+					if(str == "end elements") countelements = false;
+					if(countelements) numelements1d++;	
+				}
+				
+			}
+			if(countelements) numelements++;
+			
+			
+		}
+	}
+	
+	
+	int nodeId = 0, elementId = 0, matElId = 0;
+	std::ifstream read;
+	read.open(FileName.c_str());
+	
+	double nodecoordX , nodecoordY , nodecoordZ ;
+	
+	char buf[1024];
+	read.getline(buf, 1024);
+	read.getline(buf, 1024);
+	std::string str(buf);
+	int in;
+	std::vector <double> co(3,0);
+	for(in=0; in<numnodes; in++)
+	{ 
+		read >> nodeId;
+		nodeId--;
+		read >> nodecoordX;
+		read >> nodecoordY;
+		read >> nodecoordZ;
+		co[0] = nodecoordX;
+		co[1] = nodecoordY;
+		co[2] = nodecoordZ;
+		TNo no(co);
+		malha.insertNode(no);		
+	}
+	
+	
+	
+	{
+		read.close();
+		read.open(FileName.c_str());
+		
+		int l , m = numnodes+5;
+		for(l=0; l<m; l++)
+		{
+			read.getline(buf, 1024);
+		}
+		// Soh funciona para porder 1
+		int mat = 1, morder = 1;
+		std::vector <int> nodes(3,0);
+		int el;
+		for(el=0; el<numelements; el++)
+		{
+			read >> elementId;
+			read >> nodes[0]; //node 1
+			read >> nodes[1]; //node 2
+			read >> nodes[2]; //node 3
+			
+			// O GID comeca com 1 na contagem dos nodes, e nao zero como no programa, assim o node 1 na verdade Ž o node 0
+			nodes[0]--;
+			nodes[1]--;
+			nodes[2]--;
+			
+			telemento2d_tri *elem = new telemento2d_tri(mat,morder,nodes);
+			malha.insertElement(elem);
+		}
+		
+		//Dirichilet em baixo
+		double id = 2, type = 0, contrstiff = 0, contrrhs = 0;
+		TMaterialBC *matbc1 = new TMaterialBC(id,type,contrstiff,contrrhs);
+		malha.insertMaterial(matbc1);
+		
+		// Neumann
+		id = 3;
+		type = 1;
+		contrstiff = 0;
+		contrrhs = 0;
+		TMaterialBC *matbc2 = new TMaterialBC(id,type,contrstiff,contrrhs);
+		malha.insertMaterial(matbc2);
+		
+		// Dirichilet em cima 
+		id = 4;
+		type = 0;
+		contrstiff = 0;
+		contrrhs = 2;
+		TMaterialBC *matbc3 = new TMaterialBC(id,type,contrstiff,contrrhs);
+		malha.insertMaterial(matbc3);
+		
+		
+		for(l=0; l<7; l++)
+		{
+			read.getline(buf, 1024);
+		}
+		
+		nodes.resize(2,0);
+		mat = 2;
+		for(el=0; el<numelements1d; el++)
+		{
+			read >> elementId;
+			read >> nodes[0]; //node 1
+			read >> nodes[1]; //node 2
+			
+			// O GID comeca com 1 na contagem dos nodes, e nao zero como no programa, assim o node 1 na verdade Ž o node 0
+			nodes[0]--;
+			nodes[1]--;
+			
+			TNo &no1 = malha.getNode(nodes[0]);
+			TNo	&no2 = malha.getNode(nodes[1]);
+			
+			if (no1.Co(1) == 0 && no2.Co(1) == 0) 
+			{
+				mat = 2;
+				TElemento1d *elem = 
+				new TElemento1d(mat,morder,nodes);
+				malha.insertElement(elem);
+			}
+			else if (no1.Co(1) == 2 && no2.Co(1) == 2)
+			{
+				mat = 4;
+				TElemento1d *elem = new TElemento1d(mat,morder,nodes);
+				malha.insertElement(elem);
+			}
+			
+		}
+		
+	}
+	
 }

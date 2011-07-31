@@ -19,11 +19,11 @@
  ***************************************************************************/
 #include "tmaterial.h"
 
-TMaterial::TMaterial(int id) : fId(id)
+TMaterial::TMaterial(int id) : fId(id), fForcing(0)
 {
 }
 
-TMaterial::TMaterial(const TMaterial &copy) : fId(copy.fId)
+TMaterial::TMaterial(const TMaterial &copy) : fId(copy.fId), fForcing(0)
 {
 }
 

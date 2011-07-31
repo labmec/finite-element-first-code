@@ -29,14 +29,18 @@ TAnalysis::~TAnalysis()
 {
 }
 
+
+
     // Builds the global stiffness matrix and right hand side
 void TAnalysis::Run()
 {
-   if(!fMalha) return;
+	 if(!fMalha) return;
    int neq = fMalha->getNodeVec().size();
    TPZFMatrix globstiff(neq,neq,0.);
    TPZFMatrix globrhs(neq,1,0.);
    Assemble(globstiff,globrhs);
+	 globstiff.Print("GLOBAL STIFF:");
+	 globrhs.Print("Global Rhs");
    fSolution = globrhs;
    globstiff.Solve_LU(&fSolution);
 	
@@ -48,9 +52,8 @@ void TAnalysis::Run()
 			 fSolution(i) = 0;
 		 }
 	 }
-   
+		
    fSolution.Print("The solution ");
-   
 }
 
     // assembly method
@@ -62,16 +65,19 @@ void TAnalysis::Assemble(TPZMatrix &stiff, TPZFMatrix &rhs)
    for(iel=0; iel<nelem; iel++)
    {
      fMalha->getElement(iel)->CalcStiff(*fMalha,locstiff,locrhs);
+		 locstiff.Print("LocStiff: ");
+		 locrhs.Print("LocRhs: ");
      const std::vector<int> &nodes = fMalha->getElement(iel)->getNodeVec();
      int nnodes = nodes.size();
      int in,jn;
-     for(in=0; in<nnodes; in++)
+		 for(in=0; in<nnodes; in++)
      {
-     	rhs(nodes[in],0) += locrhs(in,0);
+     	 rhs(nodes[in],0) += locrhs(in,0);
 			 for(jn=0; jn<nnodes; jn++)
 			 {
 				 stiff(nodes[in],nodes[jn]) += locstiff(in,jn);
 			 }
+			 
      }
    }
 }

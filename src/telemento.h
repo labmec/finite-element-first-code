@@ -30,6 +30,7 @@ class TPZMatrix;
 class TPZFMatrix;
 #include <vector>
 #include <iostream>
+#include "pzfmatrix.h"
 /**
 Classe virtual que implementa a interface básica de um elemento
 
@@ -82,6 +83,8 @@ public: //Métodos de cálculo
     static int main();
     
 public:
+	
+
 
     /**
      * Cálcula o valor da função de forma em um dado ponto
@@ -129,8 +132,15 @@ public:
      * @param energy [out] erro na norma de energia
      * @param l2 [out] erro na norma l2
      */
-virtual void Error(TPZFMatrix &solution, TMalha &malha, void (f)(std::vector<double> &,double &, std::vector<double> &), double &energy, double &l2) = 0;
+	virtual void Error(TPZFMatrix &solution, TMalha &malha, void (f)(std::vector<double> &,double &, std::vector<double> &), double &energy, double &l2) = 0;
     
+	
+	/** Calcula as coord reais do ponto de integracao
+	 
+	 **/
+	virtual void RealCoord(std::vector <double> &point, TMalha &malha) = 0;
+	
+	
 protected:
     
     /**
@@ -148,6 +158,16 @@ protected:
      * Ordem de interpolação p
      */
     int fPorder;
+		
+	  /**
+	  * Funcoes base
+	  */
+		std::vector <double> fphi;
+		
+	  /**
+	  * Derivada das funcoes base
+	  */
+		TPZFMatrix fdphi;
     
 };
 
