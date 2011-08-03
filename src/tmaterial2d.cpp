@@ -79,8 +79,8 @@ void TMaterial2d::Contribute (std::vector<double> &point, double  weight,
 			elementF(i,0) += weight*philVal[i]*fF;
 			for(j=0; j<nshape; j++)
 			{
-				elementK(i,j) += dphi(0,i)*dphi(0,j)*fK*weight + dphi(1,i)*dphi(1,j)*fK*weight+
-				philVal[i]*philVal[j]*fB*weight;
+				elementK(i,j) += dphi(0,i)*dphi(0,j)*fK*weight + dphi(1,i)*dphi(1,j)*fK*weight;//+
+				//philVal[i]*philVal[j]*fB*weight;
 			}
 		}
 		
@@ -102,15 +102,16 @@ void TMaterial2d::ContributeErrorSquare(std::vector<double> &x, double weight, d
 {
 	double solexact;
 	int dimension = deriv.size();
-	std::vector <double> derivsolexact(dimension); // para acessar o dphi/dy usa-se i*dimension
+	std::vector <double> derivsolexact(dimension);
 	function(x,solexact,derivsolexact);
 	int id;
 	for(id=0; id<dimension; id++)
 	{
-	   energy += weight*(deriv[id]-derivsolexact[id])*(deriv[id]-derivsolexact[id])
-						 + weight*(deriv[id]-derivsolexact[id])*(deriv[id]-derivsolexact[id]);
+		std::cout << deriv[id] << "\t"<< derivsolexact[id] << std::endl;
+	  energy += weight*(deriv[id]-derivsolexact[id])*(deriv[id]-derivsolexact[id]);
+		//energy += weight*(deriv[id]);
 	}
-	energy += weight*(sol-solexact)*(sol-solexact);
+	//energy += weight*(sol-solexact)*(sol-solexact);
 	l2 += weight*(sol-solexact)*(sol-solexact);
 	
 } 

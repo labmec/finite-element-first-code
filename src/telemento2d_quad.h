@@ -59,7 +59,7 @@ public:
 
 	virtual void RealCoord(std::vector <double> &point, TMalha &malha);
 	
-	void ComputeSol(TPZFMatrix& sol, double &val, std::vector <double> &deriv);
+	void ComputeSol(TPZFMatrix& sol, double &val, std::vector <double> &deriv, TPZFMatrix &dphidx);
 	
 
 };

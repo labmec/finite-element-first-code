@@ -196,10 +196,13 @@ void telemento2d_quad::Shape(std::vector<double> &point, std::vector<double> &ph
 {
 	std::vector<double> phi1d_a(fPorder+1), phi1d_b(fPorder+1), pt(1,0);
 	TPZFMatrix dphi1d_a(0,fPorder+1), dphi1d_b(0,fPorder+1);
+	//pt[0] = point[0];
 	pt[0] = point[0];
   TElemento::Shape1d(fPorder, pt, phi1d_a, dphi1d_a);
 	pt[0] = point[1];
 	TElemento::Shape1d(fPorder, pt, phi1d_b, dphi1d_b);
+	
+	std::cout << dphi1d_a(0,0) << "\t" << dphi1d_a(0,1) << std::endl;
 	
 	/*int is, js; MUITO LEGAL, PENA QUE NAO FICA ANTI HORARIO
 	for (is = 0 ; is < (fPorder+1) ; is++)
@@ -221,14 +224,14 @@ void telemento2d_quad::Shape(std::vector<double> &point, std::vector<double> &ph
 	phi[1] = phi1d_a[ns]*phi1d_b[0];		
 	phi[2] = phi1d_a[ns]*phi1d_b[ns];		
 	phi[3] = phi1d_a[0]*phi1d_b[ns];		
-	dphi(0,0) = dphi1d_a[0]*phi1d_b[0];
-	dphi(0,1) = dphi1d_a[ns]*phi1d_b[0];
-	dphi(0,2) = dphi1d_a[ns]*phi1d_b[ns];
-	dphi(0,3) = dphi1d_a[0]*phi1d_b[ns];
-	dphi(1,0) = phi1d_a[0]*dphi1d_b[0];
-	dphi(1,1) = phi1d_a[ns]*dphi1d_b[0];
-	dphi(1,2) = phi1d_a[ns]*dphi1d_b[ns];
-	dphi(1,3) = phi1d_a[0]*dphi1d_b[ns];
+	dphi(0,0) = dphi1d_a(0,0)*phi1d_b[0];
+	dphi(0,1) = dphi1d_a(0,ns)*phi1d_b[0];
+	dphi(0,2) = dphi1d_a(0,ns)*phi1d_b[ns];
+	dphi(0,3) = dphi1d_a(0,0)*phi1d_b[ns];
+	dphi(1,0) = phi1d_a[0]*dphi1d_b(0,0);
+	dphi(1,1) = phi1d_a[ns]*dphi1d_b(0,0);
+	dphi(1,2) = phi1d_a[ns]*dphi1d_b(0,ns);
+	dphi(1,3) = phi1d_a[0]*dphi1d_b(0,ns);
 	
 	int im;
 	for (im = 1; im < ns; im++) 
@@ -280,7 +283,7 @@ void telemento2d_quad::Shape(std::vector<double> &point, std::vector<double> &ph
 void telemento2d_quad::Error(TPZFMatrix &solution, TMalha &malha, void (exact)(std::vector<double> &,double &, std::vector<double> &), double &energy, double &l2)
 {
 	int Nshape=(this->fPorder+1)*(this->fPorder+1);
-	int dim=2;
+	int dim=2;  
   std::vector<double> phi(Nshape),pointstl(dim,0.);
   TPZFMatrix dphi(dim,Nshape), gradphi(dim,Nshape);
   TPZFMatrix jac(dim,dim),jacinv(dim,dim);
@@ -303,9 +306,6 @@ void telemento2d_quad::Error(TPZFMatrix &solution, TMalha &malha, void (exact)(s
 	int ip;
 	for(ip = 0; ip<npoints; ip++)
   {
-		//intrule.Point(ip,point,weight);
-		
-		// AGORA RECEBE UM PAIR NO X
     intrule.Point(ip, x, weight); // Retorna os pontos e os pesos obtidos pela Regra de Integracao
     
 		pointstl[0] = x.first;
@@ -358,10 +358,15 @@ void telemento2d_quad::Error(TPZFMatrix &solution, TMalha &malha, void (exact)(s
    	//void (function)(std::vector<double>& x, double &val, std::vector<double>&der), double &energy, double &l2
 		double sol;
 		std::vector <double> deriv;
-		this->ComputeSol(solution, sol, deriv);
+		
+		this->ComputeSol(solution, sol, deriv, gradphi);
+	
+		
 		mat->ContributeErrorSquare(pointstl, weight, sol, deriv, exact, energy, l2);
     //mat->Contribute(pointstl,weight,phi,gradphi,stiff,rhs);
   }
+	//energy=sqrt(energy);
+	//l2 = sqrt(l2);
 	
 }
 
@@ -399,7 +404,7 @@ void telemento2d_quad::JacobTest(TMalha &malha, TPZFMatrix& stiff, TPZFMatrix& r
 	
 }
 
-void telemento2d_quad::ComputeSol(TPZFMatrix& sol, double &val, std::vector <double> &deriv)
+void telemento2d_quad::ComputeSol(TPZFMatrix& sol, double &val, std::vector <double> &deriv, TPZFMatrix &dphidx)
 {
 	int n = fNodes.size();
 	val = 0;
@@ -407,9 +412,11 @@ void telemento2d_quad::ComputeSol(TPZFMatrix& sol, double &val, std::vector <dou
 	for (int i = 0; i < n; i++) 
 	{
 		val += sol(fNodes[i])*fphi[i];
-		deriv[0] = sol(fNodes[i])*fdphi(0,i);
-		deriv[1] = sol(fNodes[i])*fdphi(1,i);		
+		//std::cout << sol(fNodes[i]) << "\t" << fdphi(0,i) << "\t" << fdphi(1,i) << std::endl; 
+		deriv[0] += sol(fNodes[i])*dphidx(0,i);
+		deriv[1] += sol(fNodes[i])*dphidx(1,i);		
 	}
+	//std::cout << deriv[0] << "\t" << deriv[1] << std::endl;
 }
 
 void telemento2d_quad::RealCoord(std::vector <double> &point, TMalha &malha)

@@ -83,7 +83,7 @@ void TAnalysis::Assemble(TPZMatrix &stiff, TPZFMatrix &rhs)
 }
 
 
-    // computes the error in energy and l2 norm
+    // computes the error in energy and l2 norm for 2d cases
 void TAnalysis::Error(void (exact) (std::vector<double> &x, double &val, std::vector<double> &deriv), double &energy, double &l2)
 {
    int nelem = fMalha->getElementVec().size();
@@ -97,8 +97,8 @@ void TAnalysis::Error(void (exact) (std::vector<double> &x, double &val, std::ve
      double energyel = 0.;
      double l2el = 0.;
      fMalha->getElement(iel)->Error(fSolution,*fMalha,exact,energyel,l2el);
-     energy += energyel*energyel;
-     l2 += l2el*l2el;
+		 energy += energyel;
+		 l2 += l2el;
    }
    energy = sqrt(energy);
    l2 = sqrt(l2);

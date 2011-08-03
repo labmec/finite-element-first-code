@@ -52,10 +52,10 @@ TElemento::~TElemento()
      */
 void TElemento::Shape1d (int order, std::vector<double> & pt,std::vector<double> & phi, TPZFMatrix& dphi)
 {
-  std::cout << __PRETTY_FUNCTION__ << "\nOrdem : " << order << " Ponto de entrada ";
+  //std::cout << __PRETTY_FUNCTION__ << "\nOrdem : " << order << " Ponto de entrada ";
   int i,j,k;
-  for(i=0; i< pt.size(); i++) std::cout << pt[i] << ' ';
-  std::cout << std::endl;
+  //for(i=0; i< pt.size(); i++) std::cout << pt[i] << ' ';
+  //std::cout << std::endl;
   
   phi.resize(order+1);
   dphi.Redim(1,order+1);

@@ -94,15 +94,15 @@ int main(int argc, char *argv[])
   }
   TMalha NumeroUm;
   std::string filename(argv[1]);
-  ReadMeshGidTri(NumeroUm,filename);
-  //ReadMeshGid(NumeroUm,filename);
+  //ReadMeshGidTri(NumeroUm,filename);
+  ReadMeshGid(NumeroUm,filename);
 	//ReadMesh(NumeroUm,filename);
   TAnalysis analysis(&NumeroUm);
   analysis.Run();
 	double energy, l2;
 	
-	//analysis.Error(ExactQuad, energy, l2);
-	//std::cout << energy << "\t" << l2 ;
+	analysis.Error(ExactQuad, energy, l2);
+	std::cout << energy << "\t" << l2 ;
 
     
   return EXIT_SUCCESS;
@@ -239,7 +239,7 @@ void ReadMeshGid(TMalha &malha, std::string &FileName)
 	int numelements=-1;
 	int numelements1d=-1;
 	int id = 1;
-	double k = 1, c = 0, b = 0, f = -1;
+	double k = 1, c = 0, b = 0, f = 1;
 	TMaterial2d *mat2d = new TMaterial2d(id,k,c,b,f);
 	malha.insertMaterial(mat2d);
 	
@@ -367,7 +367,7 @@ void ReadMeshGid(TMalha &malha, std::string &FileName)
 		id = 4;
 		type = 0;
 		contrstiff = 0;
-		contrrhs = 2;
+		contrrhs = -2;
 		TMaterialBC *matbc3 = new TMaterialBC(id,type,contrstiff,contrrhs);
 		malha.insertMaterial(matbc3);
 
@@ -428,9 +428,9 @@ void Exact(std::vector<double> &x, double &val, std::vector<double> &deriv)
 void ExactQuad(std::vector <double> &x, double &val, std::vector <double> &deriv)
 {
 	deriv.resize(2,0);
-	val = x[1]*x[1]/2;
+	val = -x[1]*x[1]/2;
 	deriv[0] = 0;
-	deriv[1] = x[1];
+	deriv[1] = -x[1];
 	
 }
 
