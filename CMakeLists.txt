@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.1)
 
 project (Neo_Fem_sc)
 
@@ -28,24 +28,6 @@ endif()
 # ############### ############### ############### ############### ############### ############### ############### ############### ###############
 
 
-
-# ############### ############### ############### ############### ############### ############### ############### ############### ###############
-# Begin Pointer to gmm directory 
-
-option(USING_GMM "Whether the gmm package will be linked with the library" ON)
-
-if(USING_GMM)
-	
-	set(GMM_INCLUDE "/usr/local/include" CACHE PATH "directory to the source of GMM")
-	add_definitions(-D_AUTODIFF)
-    include_directories(${GMM_INCLUDE},${GMM_INCLUDE}/gmm,${GMM_INCLUDE}/gmm/gmm-4.1)
-endif()
-
-# End Pointer to gmm directory 
-# ############### ############### ############### ############### ############### ############### ############### ############### ###############
-
-
-
 # ############### ############### ############### ############### ############### ############### ############### ############### ###############
 # Begin Pointer to tinyxml directory 
 
@@ -69,71 +51,51 @@ endif()
 option(USING_PZ "Whether the PZ package will be linked with the library" ON)
 
 if(USING_PZ)
-    
-    set(PZ_INCLUDE "/usr/local/include" CACHE PATH "directory to the source of PZ")
-    add_definitions()
-    link_directories(${PZ_INCLUDE}/lib)
-    include_directories(${PZ_INCLUDE}/include/pz)
-    link_libraries(pzmatrix)
+	set(CMAKE_CXX_STANDARD 11)
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+	if (WIN32)
+		find_package( PZ PATHS "C:/Arquivos de Programas/PZ" REQUIRED NO_DEFAULT_PATH)
+	else()
+		find_package( PZ REQUIRED )
+	endif(WIN32)
+
+	include_directories(${PZ_INCLUDE_DIRS})
+    link_libraries(pz)
 endif()
 
 # End Pointer to PZ directory 
 # ############### ############### ############### ############### ############### ############### ############### ############### ###############
 
-
-
 # ############### ############### ############### ############### ############### ############### ############### ############### ###############
 # Begin Pointer to Boost directory 
 
-option(USING_BOOST "Whether the Boost package will be linked with the library" ON)
 
-if(USING_BOOST)
-	
-	find_package( Boost 1.36.0 )
-   		if(Boost_FOUND)
-			add_definitions(-DUSING_BOOST)
-      		include_directories(${Boost_INCLUDE_DIRS})
-   		endif()
+# ############### ############### ############### ############### ############### ############### ############### ############### ###############
+# Begin Pointer to Armadillo library
+
+option(USING_ARMADILLO "Whether the Armadillo library will be linked in" OFF)
+if(USING_ARMADILLO)
+	find_package( Armadillo REQUIRED NO_MODULE)
+	include_directories(${ARMADILLO_INCLUDE_DIRS})
+	link_libraries(${ARMADILLO_LIBRARIES})
 endif()
 
-# End Pointer to Boost directory 
+# End Pointer to Armadillo directory 
 # ############### ############### ############### ############### ############### ############### ############### ############### ###############
 
-
-
 # ############### ############### ############### ############### ############### ############### ############### ############### ###############
-# Begin Pointer to Fad directory
+# Begin Pointer to Eigen3 library
 
-option(USING_FAD "Whether the Boost package will be linked with the library" ON)
-
-if(USING_FAD)
-	
-	set(FAD_INCLUDE "/usr/local/include" CACHE PATH "directory to the source of FAD")
-	add_definitions(-D_AUTODIFF)
-    include_directories(${FAD_INCLUDE},${FAD_INCLUDE}/Fad,${FAD_INCLUDE}/TinyFad,${FAD_INCLUDE}/TinyFadET)
+option(USING_EIGEN3 "Whether the Eigen3 library will be linked in" OFF)
+if(USING_EIGEN3)
+	find_package( Eigen3 REQUIRED )
+	include_directories(${EIGEN3_INCLUDE_DIR})
 endif()
 
-# End Pointer to Fad directory 
+# End Pointer to Eigen3 directory 
 # ############### ############### ############### ############### ############### ############### ############### ############### ###############
 
-
-
-# ############### ############### ############### ############### ############### ############### ############### ############### ###############
-# Begin Pointer to Log4cxx directory
-
-option(USING_LOG4CXX "Whether the LOG4CXX library will be linked in" OFF)
-if(USING_LOG4CXX)
-	set (LOG4CXX_INCLUDE "/usr/local/include" CACHE PATH "directory where log4cxx header files can be found")
-	set (LOG4CXX_LIB_INCLUDE "/usr/local/lib" CACHE PATH "directory where the log4cxx library can be found")
-	include_directories(${LOG4CXX_INCLUDE})
-	link_directories(${LOG4CXX_LIB_INCLUDE})
-	#add_definitions(-DLOG4CXX -DPZSOURCEDIR=\"${PROJECT_SOURCE_DIR}/NeoPZ\")
-	link_libraries(log4cxx)
-endif()
-
-# End Pointer to Log4cxx directory 
-# ############### ############### ############### ############### ############### ############### ############### ############### ###############
 
 
 add_subdirectory(src)
