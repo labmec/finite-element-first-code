@@ -29,23 +29,6 @@ endif()
 
 
 # ############### ############### ############### ############### ############### ############### ############### ############### ###############
-# Begin Pointer to tinyxml directory 
-
-option(USING_tinyxml "Whether the tinyxml package will be linked with the library" ON)
-
-if(USING_tinyxml)
-	
-	set(tinyxml_INCLUDE "/usr/local/include" CACHE PATH "directory to the source of tinyxml")
-	add_definitions(-D_AUTODIFF)
-    include_directories(${tinyxml_INCLUDE},${tinyxml_INCLUDE}/tinyxml)
-endif()
-
-# End Pointer to tinyxml directory 
-# ############### ############### ############### ############### ############### ############### ############### ############### ###############
-
-
-
-# ############### ############### ############### ############### ############### ############### ############### ############### ###############
 # Begin Pointer to PZ directory 
 
 option(USING_PZ "Whether the PZ package will be linked with the library" ON)
@@ -67,6 +50,7 @@ endif()
 # End Pointer to PZ directory 
 # ############### ############### ############### ############### ############### ############### ############### ############### ###############
 
+
 # ############### ############### ############### ############### ############### ############### ############### ############### ###############
 # Begin Pointer to Boost directory 
 
@@ -83,6 +67,7 @@ endif()
 
 # End Pointer to Armadillo directory 
 # ############### ############### ############### ############### ############### ############### ############### ############### ###############
+
 
 # ############### ############### ############### ############### ############### ############### ############### ############### ###############
 # Begin Pointer to Eigen3 library
